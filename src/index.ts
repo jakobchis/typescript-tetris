@@ -1,18 +1,137 @@
-import { Piece } from "./Piece";
-import { LinePiece } from "./PieceTypes";
+import { LinePiece, SquarePiece } from "./PieceTypes";
 
-window.addEventListener("load", () => {
-  gameLoop();
-});
-
-const gameLoop = () => {
+const game = () => {
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
   const ctx = canvas.getContext("2d");
+  let previousTimestamp = 0;
+  let piece = new LinePiece();
+  let forbiddenSquares = [];
+  let gameOver = false;
+
+  const tick = (timestamp) => {
+    if (previousTimestamp === undefined) previousTimestamp = timestamp;
+    let elapsed = timestamp - previousTimestamp;
+
+    if (elapsed > 1000) {
+      previousTimestamp = timestamp;
+      elapsed = 0;
+      console.log("tick");
+      movePiece("down");
+      draw();
+    }
+
+    if (!gameOver) {
+      window.requestAnimationFrame(tick);
+    } else {
+      console.log("GAME OVER");
+      document.onkeydown = null;
+    }
+  };
+
+  const movePiece = (direction) => {
+    let newSquares = [];
+    if (direction === "down") {
+      newSquares = piece.squares.map((square) => ({
+        ...square,
+        yPosition: square.yPosition + 25,
+      }));
+
+      const outOfBounds = newSquares.find((square) => {
+        return (
+          square.yPosition >= 550 ||
+          forbiddenSquares.find((forbiddenSquare) => {
+            return (
+              forbiddenSquare.yPosition === square.yPosition &&
+              forbiddenSquare.xPosition === square.xPosition
+            );
+          })
+        );
+      });
+
+      if (outOfBounds) {
+        forbiddenSquares.push(...piece.squares);
+        piece = new LinePiece();
+        gameOver = !!piece.squares.find((square) => {
+          return forbiddenSquares.find((square2) => {
+            return (
+              square.xPosition === square2.xPosition &&
+              square.yPosition === square2.yPosition
+            );
+          });
+        });
+        return;
+      }
+
+      piece.squares = newSquares;
+    }
+
+    if (direction === "left") {
+      newSquares = piece.squares.map((square) => ({
+        ...square,
+        xPosition: square.xPosition - 25,
+      }));
+
+      const outOfBounds = newSquares.find((square) => {
+        return (
+          square.xPosition < 0 ||
+          forbiddenSquares.find((forbiddenSquare) => {
+            return (
+              forbiddenSquare.yPosition === square.yPosition &&
+              forbiddenSquare.xPosition === square.xPosition
+            );
+          })
+        );
+      });
+
+      if (outOfBounds) {
+        return;
+      }
+
+      piece.squares = newSquares;
+    }
+
+    if (direction === "right") {
+      newSquares = piece.squares.map((square) => ({
+        ...square,
+        xPosition: square.xPosition + 25,
+      }));
+
+      const outOfBounds = newSquares.find((square) => {
+        return (
+          square.xPosition >= 300 ||
+          forbiddenSquares.find((forbiddenSquare) => {
+            return (
+              forbiddenSquare.yPosition === square.yPosition &&
+              forbiddenSquare.xPosition === square.xPosition
+            );
+          })
+        );
+      });
+
+      if (outOfBounds) {
+        return;
+      }
+
+      piece.squares = newSquares;
+    }
+  };
 
   const draw = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = piece.colour;
+    ctx.fillStyle = "grey";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     piece.squares.forEach((square) => {
+      ctx.fillStyle = square.colour;
+      ctx.fillRect(
+        square.xPosition,
+        square.yPosition,
+        square.width,
+        square.height
+      );
+    });
+
+    forbiddenSquares.forEach((square) => {
+      ctx.fillStyle = square.colour;
       ctx.fillRect(
         square.xPosition,
         square.yPosition,
@@ -22,41 +141,23 @@ const gameLoop = () => {
     });
   };
 
-  // // Tetris grid is: 12x22
-  // // Each block needs a concept of an outer/inner square (diy border)
-  // let gameGrid = [];
-  // for (let i = 0; i < 12; i++) {
-  //   const x = 0 + (i * 25);
-  //   const y = 0;
-  //   gameGrid.push([x, y, 25, 25])
-  // }
-
-  // ctx.fillStyle = "green";
-  // gameGrid.forEach((square) => ctx.fillRect(square[0], square[1], square[2], square[3]))
-
-  // ctx.fillStyle = 'black'
-  // gameGrid.forEach((square) => ctx.fillRect(square[0] + 2, square[1] + 2, square[2] - 5, square[3] - 5))
-
-  const piece = new LinePiece();
-  draw();
-
   const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.code == "ArrowUp") {
-      piece.updatePosition("up");
-      console.log("up");
-    } else if (e.code == "ArrowDown") {
-      piece.updatePosition("down");
-      console.log("down");
+    if (e.code == "ArrowDown") {
+      movePiece("down");
     } else if (e.code == "ArrowLeft") {
-      piece.updatePosition("left");
-      console.log("left");
+      movePiece("left");
     } else if (e.code == "ArrowRight") {
-      piece.updatePosition("right");
-      console.log("right");
+      movePiece("right");
     }
 
     draw();
   };
 
+  draw();
   document.onkeydown = handleKeyPress;
+  window.requestAnimationFrame(tick);
 };
+
+window.addEventListener("load", () => {
+  game();
+});
