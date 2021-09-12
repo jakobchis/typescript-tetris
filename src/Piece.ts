@@ -1,18 +1,20 @@
 type PieceSquare = {
-  xPosition: number;
-  yPosition: number;
+  xPos: number;
+  yPos: number;
   width: number;
   height: number;
   colour: string;
 };
 
-export type CenterPoint = {
-  xPosition: number;
-  yPosition: number;
-}
+type CenterPoint = {
+  xPos: number;
+  yPos: number;
+};
 
-export class Piece {
+class Piece {
   colour: string;
   squares: Array<PieceSquare>;
   centerPoint: CenterPoint;
 }
+
+export { CenterPoint, PieceSquare, Piece };

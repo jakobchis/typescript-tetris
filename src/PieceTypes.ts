@@ -1,35 +1,35 @@
 import { Piece } from "./Piece";
 import { getRandomColor } from "./utils";
-export class LinePiece extends Piece {
+class LinePiece extends Piece {
   constructor() {
     super();
     this.colour = getRandomColor();
-    this.centerPoint = { xPosition: 25, yPosition: 50 };
+    this.centerPoint = { xPos: 25, yPos: 50 };
     this.squares = [
       {
-        xPosition: 0,
-        yPosition: 25,
+        xPos: 0,
+        yPos: 25,
         width: 25,
         height: 25,
         colour: this.colour,
       },
       {
-        xPosition: 25,
-        yPosition: 25,
+        xPos: 25,
+        yPos: 25,
         width: 25,
         height: 25,
         colour: this.colour,
       },
       {
-        xPosition: 50,
-        yPosition: 25,
+        xPos: 50,
+        yPos: 25,
         width: 25,
         height: 25,
         colour: this.colour,
       },
       {
-        xPosition: 75,
-        yPosition: 25,
+        xPos: 75,
+        yPos: 25,
         width: 25,
         height: 25,
         colour: this.colour,
@@ -38,36 +38,36 @@ export class LinePiece extends Piece {
   }
 }
 
-export class LPiece extends Piece {
+class LPiece extends Piece {
   constructor() {
     super();
     this.colour = getRandomColor();
-    this.centerPoint = { xPosition: 25, yPosition: 25 };
+    this.centerPoint = { xPos: 25, yPos: 25 };
     this.squares = [
       {
-        xPosition: 0,
-        yPosition: 25,
+        xPos: 0,
+        yPos: 25,
         width: 25,
         height: 25,
         colour: this.colour,
       },
       {
-        xPosition: 25,
-        yPosition: 25,
+        xPos: 25,
+        yPos: 25,
         width: 25,
         height: 25,
         colour: this.colour,
       },
       {
-        xPosition: 50,
-        yPosition: 25,
+        xPos: 50,
+        yPos: 25,
         width: 25,
         height: 25,
         colour: this.colour,
       },
       {
-        xPosition: 50,
-        yPosition: 0,
+        xPos: 50,
+        yPos: 0,
         width: 25,
         height: 25,
         colour: this.colour,
@@ -76,4 +76,44 @@ export class LPiece extends Piece {
   }
 }
 
-export class SquarePiece {}
+class SquarePiece extends Piece {
+  constructor() {
+    super();
+    this.colour = getRandomColor();
+    this.centerPoint = { xPos: 25, yPos: 25 };
+    this.squares = [
+      {
+        xPos: 0,
+        yPos: 0,
+        width: 25,
+        height: 25,
+        colour: this.colour,
+      },
+      {
+        xPos: 0,
+        yPos: 25,
+        width: 25,
+        height: 25,
+        colour: this.colour,
+      },
+      {
+        xPos: 25,
+        yPos: 0,
+        width: 25,
+        height: 25,
+        colour: this.colour,
+      },
+      {
+        xPos: 25,
+        yPos: 25,
+        width: 25,
+        height: 25,
+        colour: this.colour,
+      },
+    ];
+  }
+}
+
+// TODO add the rest of the pieces
+
+export { LinePiece, LPiece, SquarePiece };
