@@ -6,7 +6,13 @@ type PieceSquare = {
   colour: string;
 };
 
+export type CenterPoint = {
+  xPosition: number;
+  yPosition: number;
+}
+
 export class Piece {
   colour: string;
   squares: Array<PieceSquare>;
+  centerPoint: CenterPoint;
 }
