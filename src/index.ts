@@ -1,4 +1,5 @@
-import { Piece, CenterPoint, PieceSquare } from "./Piece";
+import { Piece, PieceSquare } from "./Piece";
+import { dropPiece, movePiece } from "./pieceMovement";
 import { LinePiece, LPiece, SquarePiece } from "./PieceTypes";
 
 // Look here for documentation on pieces
@@ -9,10 +10,13 @@ const pieces = [LinePiece, LPiece, SquarePiece];
 const squareSize = { width: 25, height: 25 };
 const gridSize = { height: 22, width: 12 };
 
-let canvas: HTMLCanvasElement;
-let ctx: CanvasRenderingContext2D;
+let mainCanvas: HTMLCanvasElement;
+let extraInfoCanvas: HTMLCanvasElement;
+let mainCtx: CanvasRenderingContext2D;
+let extraInfoCtx: CanvasRenderingContext2D;
 let previousTimestamp: number = 0;
 let currentPiece: Piece;
+let queuedPiece: Piece;
 let forbiddenSquares: PieceSquare[] = [];
 let gameOver = false;
 
@@ -31,7 +35,7 @@ const tick = (timestamp: number) => {
     previousTimestamp = timestamp;
     elapsed = 0;
     console.log("TICK");
-    movePiece("down");
+    handlePieceMovement("down");
   }
 
   if (!gameOver) {
@@ -46,7 +50,9 @@ const tick = (timestamp: number) => {
 
 const checkForLineClear = () => {
   for (let i = 0; i < gridSize.height; i++) {
-    const fullLine = forbiddenSquares.filter((square) => square.yPos === (i * 25));
+    const fullLine = forbiddenSquares.filter(
+      (square) => square.yPos === i * 25
+    );
 
     if (fullLine.length === gridSize.width) {
       console.log("LINE CLEAR");
@@ -62,77 +68,37 @@ const checkForLineClear = () => {
   }
 };
 
-const rotatePiece = (
-  centerXPos: number,
-  centerYPos: number,
-  xPos: number,
-  yPos: number,
-  angle: number
-) => {
-  var radians = (Math.PI / 180) * (angle * -1),
-    cos = Math.cos(radians),
-    sin = Math.sin(radians),
-    nx = cos * (xPos - centerXPos) + sin * (yPos - centerYPos) + centerXPos,
-    ny = cos * (yPos - centerYPos) - sin * (xPos - centerXPos) + centerYPos;
-  return [nx, ny];
+const draw = () => {
+  // TODO add game messages text box on the screen
+  mainCtx.fillStyle = "LightGray";
+  mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+  extraInfoCtx.fillStyle = "white";
+  extraInfoCtx.fillRect(0, 0, extraInfoCanvas.width, extraInfoCanvas.height);
+
+  currentPiece.squares.forEach((square) => {
+    mainCtx.fillStyle = square.colour;
+    mainCtx.fillRect(square.xPos, square.yPos, square.width, square.height);
+  });
+
+  forbiddenSquares.forEach((square) => {
+    mainCtx.fillStyle = square.colour;
+    mainCtx.fillRect(square.xPos, square.yPos, square.width, square.height);
+  });
+
+  queuedPiece?.squares.forEach((square) => {
+    extraInfoCtx.fillStyle = square.colour;
+    extraInfoCtx.fillRect(
+      square.xPos,
+      square.yPos,
+      square.width,
+      square.height
+    );
+  });
 };
 
-const movePiece = (direction: string) => {
-  let newSquares: PieceSquare[] = [];
-  let newCenterPoint: CenterPoint = { ...currentPiece.centerPoint };
-
-  if (direction === "up") {
-    newSquares = currentPiece.squares.map((square) => ({
-      ...square,
-      xPos: rotatePiece(
-        currentPiece.centerPoint.xPos,
-        currentPiece.centerPoint.yPos,
-        square.xPos,
-        square.yPos,
-        90
-      )[0],
-      yPos: rotatePiece(
-        currentPiece.centerPoint.xPos,
-        currentPiece.centerPoint.yPos,
-        square.xPos,
-        square.yPos,
-        90
-      )[1],
-    }));
-  }
-
-  if (direction === "down") {
-    newSquares = currentPiece.squares.map((square) => ({
-      ...square,
-      yPos: square.yPos + 25,
-    }));
-    newCenterPoint = {
-      ...currentPiece.centerPoint,
-      yPos: currentPiece.centerPoint.yPos + 25,
-    };
-  }
-
-  if (direction === "left") {
-    newSquares = currentPiece.squares.map((square) => ({
-      ...square,
-      xPos: square.xPos - 25,
-    }));
-    newCenterPoint = {
-      ...currentPiece.centerPoint,
-      xPos: currentPiece.centerPoint.xPos - 25,
-    };
-  }
-
-  if (direction === "right") {
-    newSquares = currentPiece.squares.map((square) => ({
-      ...square,
-      xPos: square.xPos + 25,
-    }));
-    newCenterPoint = {
-      ...currentPiece.centerPoint,
-      xPos: currentPiece.centerPoint.xPos + 25,
-    };
-  }
+const handlePieceMovement = (direction: string) => {
+  const { newSquares, newCenterPoint } = movePiece(direction, currentPiece);
 
   const outOfBounds = newSquares.find((square) => {
     return (
@@ -168,38 +134,39 @@ const movePiece = (direction: string) => {
   currentPiece.centerPoint = newCenterPoint;
 };
 
-const draw = () => {
-  ctx.fillStyle = "LightGray";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  currentPiece.squares.forEach((square) => {
-    ctx.fillStyle = square.colour;
-    ctx.fillRect(square.xPos, square.yPos, square.width, square.height);
-  });
-
-  forbiddenSquares.forEach((square) => {
-    ctx.fillStyle = square.colour;
-    ctx.fillRect(square.xPos, square.yPos, square.width, square.height);
-  });
-};
-
 const handleKeyPress = (e: KeyboardEvent) => {
+  console.log("code", e.code);
   // TODO add space bar to drop a piece instantly
-  // TODO add h to hold a piece and j to use a held piece as the next generated one
   if (e.code === "ArrowDown") {
-    movePiece("down");
+    handlePieceMovement("down");
   } else if (e.code === "ArrowLeft") {
-    movePiece("left");
+    handlePieceMovement("left");
   } else if (e.code === "ArrowRight") {
-    movePiece("right");
+    handlePieceMovement("right");
   } else if (e.code === "ArrowUp") {
-    movePiece("up");
+    handlePieceMovement("up");
+  } else if (e.code === "KeyQ") {
+    if (!queuedPiece) {
+      queuedPiece = new pieces[
+        pieces.indexOf(pieces.find((piece) => piece.name === currentPiece.type))
+      ](currentPiece.colour);
+      currentPiece = getRandomNewPiece();
+    }
+  } else if (e.code === "KeyW") {
+    currentPiece = queuedPiece;
+    queuedPiece = undefined;
+  } else if (e.code === "Space") {
+    dropPiece();
   }
 };
 
 window.addEventListener("load", () => {
-  canvas = document.getElementById("canvas") as HTMLCanvasElement;
-  ctx = canvas.getContext("2d");
+  mainCanvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
+  extraInfoCanvas = document.getElementById(
+    "extraInfoCanvas"
+  ) as HTMLCanvasElement;
+  mainCtx = mainCanvas.getContext("2d");
+  extraInfoCtx = extraInfoCanvas.getContext("2d");
   currentPiece = getRandomNewPiece();
 
   draw();

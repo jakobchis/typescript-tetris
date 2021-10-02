@@ -1,9 +1,10 @@
 import { Piece } from "./Piece";
 import { getRandomColor } from "./utils";
 class LinePiece extends Piece {
-  constructor() {
+  constructor(colour?: string) {
     super();
-    this.colour = getRandomColor();
+    this.type = "LinePiece";
+    this.colour = colour ?? getRandomColor();
     this.centerPoint = { xPos: 25, yPos: 50 };
     this.squares = [
       {
@@ -39,9 +40,10 @@ class LinePiece extends Piece {
 }
 
 class LPiece extends Piece {
-  constructor() {
+  constructor(colour?: string) {
     super();
-    this.colour = getRandomColor();
+    this.type = "LPiece";
+    this.colour = colour ?? getRandomColor();
     this.centerPoint = { xPos: 25, yPos: 25 };
     this.squares = [
       {
@@ -77,9 +79,10 @@ class LPiece extends Piece {
 }
 
 class SquarePiece extends Piece {
-  constructor() {
+  constructor(colour?: string) {
     super();
-    this.colour = getRandomColor();
+    this.type = "SquarePiece";
+    this.colour = colour ?? getRandomColor();
     this.centerPoint = { xPos: 25, yPos: 25 };
     this.squares = [
       {

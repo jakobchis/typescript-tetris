@@ -15,6 +15,7 @@ class Piece {
   colour: string;
   squares: Array<PieceSquare>;
   centerPoint: CenterPoint;
+  type: "LinePiece" | "LPiece" | "SquarePiece";
 }
 
 export { CenterPoint, PieceSquare, Piece };
