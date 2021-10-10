@@ -1,21 +1,27 @@
-type PieceSquare = {
+interface PieceSquare {
   xPos: number;
   yPos: number;
-  width: number;
-  height: number;
-  colour: string;
-};
+}
 
-type CenterPoint = {
-  xPos: number;
-  yPos: number;
-};
+interface ForbiddenSquare extends PieceSquare {
+  colour: string;
+}
+
+type Position = PieceSquare[];
 
 class Piece {
   colour: string;
-  squares: Array<PieceSquare>;
-  centerPoint: CenterPoint;
-  type: "LinePiece" | "LPiece" | "SquarePiece";
+  // TODO implement getter and setter methods instead of accessing position and positions directly
+  position: number;
+  positions: Position[];
+  type:
+    | "IPiece"
+    | "JPiece"
+    | "LPiece"
+    | "OPiece"
+    | "SPiece"
+    | "TPiece"
+    | "ZPiece";
 }
 
-export { CenterPoint, PieceSquare, Piece };
+export { PieceSquare, ForbiddenSquare, Piece };

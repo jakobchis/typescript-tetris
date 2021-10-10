@@ -1,40 +1,72 @@
 import { Piece } from "./Piece";
 import { getRandomColor } from "./utils";
-class LinePiece extends Piece {
+
+class IPiece extends Piece {
   constructor(colour?: string) {
     super();
-    this.type = "LinePiece";
+    this.type = "IPiece";
     this.colour = colour ?? getRandomColor();
-    this.centerPoint = { xPos: 25, yPos: 50 };
-    this.squares = [
-      {
-        xPos: 0,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 25,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 50,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 75,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
+    this.position = 0;
+    this.positions = [
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+        { xPos: 175, yPos: 25 },
+      ],
+      [
+        { xPos: 150, yPos: 0 },
+        { xPos: 150, yPos: 25 },
+        { xPos: 150, yPos: 50 },
+        { xPos: 150, yPos: 75 },
+      ],
+      [
+        { xPos: 100, yPos: 50 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 150, yPos: 50 },
+        { xPos: 175, yPos: 50 },
+      ],
+      [
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 125, yPos: 75 },
+      ],
+    ];
+  }
+}
+
+class JPiece extends Piece {
+  constructor(colour?: string) {
+    super();
+    this.type = "JPiece";
+    this.colour = colour ?? getRandomColor();
+    this.position = 0;
+    this.positions = [
+      [
+        { xPos: 100, yPos: 0 },
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+      ],
+      [
+        { xPos: 125, yPos: 0 },
+        { xPos: 150, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+      ],
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+        { xPos: 150, yPos: 50 },
+      ],
+      [
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 100, yPos: 50 },
+      ],
     ];
   }
 }
@@ -44,79 +76,156 @@ class LPiece extends Piece {
     super();
     this.type = "LPiece";
     this.colour = colour ?? getRandomColor();
-    this.centerPoint = { xPos: 25, yPos: 25 };
-    this.squares = [
-      {
-        xPos: 0,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 25,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 50,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 50,
-        yPos: 0,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
+    this.position = 0;
+    this.positions = [
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+        { xPos: 150, yPos: 0 },
+      ],
+      [
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 150, yPos: 50 },
+      ],
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 100, yPos: 50 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+      ],
+      [
+        { xPos: 100, yPos: 0 },
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+      ],
     ];
   }
 }
 
-class SquarePiece extends Piece {
+class OPiece extends Piece {
   constructor(colour?: string) {
     super();
-    this.type = "SquarePiece";
+    this.type = "OPiece";
     this.colour = colour ?? getRandomColor();
-    this.centerPoint = { xPos: 25, yPos: 25 };
-    this.squares = [
-      {
-        xPos: 0,
-        yPos: 0,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 0,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 25,
-        yPos: 0,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
-      {
-        xPos: 25,
-        yPos: 25,
-        width: 25,
-        height: 25,
-        colour: this.colour,
-      },
+    this.position = 0;
+    this.positions = [
+      [
+        { xPos: 125, yPos: 0 },
+        { xPos: 150, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+      ],
     ];
   }
 }
 
-// TODO add the rest of the pieces
+class SPiece extends Piece {
+  constructor(colour?: string) {
+    super();
+    this.type = "SPiece";
+    this.colour = colour ?? getRandomColor();
+    this.position = 0;
+    this.positions = [
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 0 },
+        { xPos: 150, yPos: 0 },
+      ],
+      [
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+        { xPos: 150, yPos: 50 },
+      ],
+      [
+        { xPos: 100, yPos: 50 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+      ],
+      [
+        { xPos: 100, yPos: 0 },
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+      ],
+    ];
+  }
+}
 
-export { LinePiece, LPiece, SquarePiece };
+class TPiece extends Piece {
+  constructor(colour?: string) {
+    super();
+    this.type = "TPiece";
+    this.colour = colour ?? getRandomColor();
+    this.position = 0;
+    this.positions = [
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+      ],
+      [
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 150, yPos: 25 },
+      ],
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 150, yPos: 25 },
+      ],
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+      ],
+    ];
+  }
+}
+
+class ZPiece extends Piece {
+  constructor(colour?: string) {
+    super();
+    this.type = "ZPiece";
+    this.colour = colour ?? getRandomColor();
+    this.position = 0;
+    this.positions = [
+      [
+        { xPos: 100, yPos: 0 },
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 150, yPos: 25 },
+      ],
+      [
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 150, yPos: 0 },
+        { xPos: 150, yPos: 25 },
+      ],
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 125, yPos: 25 },
+        { xPos: 125, yPos: 50 },
+        { xPos: 150, yPos: 50 },
+      ],
+      [
+        { xPos: 100, yPos: 25 },
+        { xPos: 100, yPos: 50 },
+        { xPos: 125, yPos: 0 },
+        { xPos: 125, yPos: 25 },
+      ],
+    ];
+  }
+}
+
+export { IPiece, JPiece, LPiece, OPiece, SPiece, TPiece, ZPiece };

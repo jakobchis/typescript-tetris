@@ -1,11 +1,19 @@
-import { Piece, PieceSquare } from "./Piece";
-import { dropPiece, movePiece } from "./pieceMovement";
-import { LinePiece, LPiece, SquarePiece } from "./PieceTypes";
+import { Piece, PieceSquare, ForbiddenSquare } from "./Piece";
+import {
+  IPiece,
+  JPiece,
+  LPiece,
+  OPiece,
+  SPiece,
+  TPiece,
+  ZPiece,
+} from "./PieceTypes";
 
 // Look here for documentation on pieces
 // https://tetris.fandom.com/wiki/SRS
 
-const pieces = [LinePiece, LPiece, SquarePiece];
+const pieces = [IPiece, JPiece, LPiece, OPiece, SPiece, TPiece, ZPiece];
+
 // TODO move these to an exported consts file?
 const squareSize = { width: 25, height: 25 };
 const gridSize = { height: 22, width: 12 };
@@ -17,7 +25,7 @@ let extraInfoCtx: CanvasRenderingContext2D;
 let previousTimestamp: number = 0;
 let currentPiece: Piece;
 let queuedPiece: Piece;
-let forbiddenSquares: PieceSquare[] = [];
+let forbiddenSquares: ForbiddenSquare[] = [];
 let gameOver = false;
 
 const getRandomNewPiece = () => {
@@ -68,39 +76,44 @@ const checkForLineClear = () => {
   }
 };
 
+// TODO add game messages text box on the screen
 const draw = () => {
-  // TODO add game messages text box on the screen
-  mainCtx.fillStyle = "LightGray";
+  mainCtx.fillStyle = "White";
   mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+  mainCtx.strokeStyle = "LightGray";
+  for (let i = 0; i < 300; i += 25) {
+    for (let n = 0; n < 550; n += 25) {
+      mainCtx.strokeRect(i, n, 25, 25);
+    }
+  }
 
-  extraInfoCtx.fillStyle = "white";
+  extraInfoCtx.fillStyle = "White";
   extraInfoCtx.fillRect(0, 0, extraInfoCanvas.width, extraInfoCanvas.height);
+  extraInfoCtx.strokeStyle = "LightGray";
+  for (let i = 0; i < 100; i += 25) {
+    for (let n = 0; n < 100; n += 25) {
+      extraInfoCtx.strokeRect(i, n, 25, 25);
+    }
+  }
 
-  currentPiece.squares.forEach((square) => {
-    mainCtx.fillStyle = square.colour;
-    mainCtx.fillRect(square.xPos, square.yPos, square.width, square.height);
+  currentPiece.positions[currentPiece.position].forEach((square: any) => {
+    mainCtx.fillStyle = currentPiece.colour;
+    mainCtx.fillRect(square.xPos, square.yPos, 25, 25);
   });
 
   forbiddenSquares.forEach((square) => {
     mainCtx.fillStyle = square.colour;
-    mainCtx.fillRect(square.xPos, square.yPos, square.width, square.height);
+    mainCtx.fillRect(square.xPos, square.yPos, 25, 25);
   });
 
-  queuedPiece?.squares.forEach((square) => {
-    extraInfoCtx.fillStyle = square.colour;
-    extraInfoCtx.fillRect(
-      square.xPos,
-      square.yPos,
-      square.width,
-      square.height
-    );
+  queuedPiece?.positions[0].forEach((square: any) => {
+    extraInfoCtx.fillStyle = queuedPiece.colour;
+    extraInfoCtx.fillRect(square.xPos - 100, square.yPos, 25, 25);
   });
 };
 
-const handlePieceMovement = (direction: string) => {
-  const { newSquares, newCenterPoint } = movePiece(direction, currentPiece);
-
-  const outOfBounds = newSquares.find((square) => {
+const isOutOfBounds = (newSquares: PieceSquare[]) => {
+  return newSquares.find((square) => {
     return (
       square.yPos >= 550 ||
       square.xPos < 0 ||
@@ -114,29 +127,100 @@ const handlePieceMovement = (direction: string) => {
       })
     );
   });
+};
 
-  if (outOfBounds) {
-    if (direction === "down") {
-      forbiddenSquares.push(...currentPiece.squares);
-      currentPiece = getRandomNewPiece();
-      gameOver = !!currentPiece.squares.find((square) => {
-        return forbiddenSquares.find((square2) => {
-          return square.xPos === square2.xPos && square.yPos === square2.yPos;
-        });
-      });
+const handlePieceMovement = (direction: string) => {
+  if (direction === "up") {
+    const newPosition =
+      currentPiece.position + 1 < currentPiece.positions.length
+        ? currentPiece.position + 1
+        : 0;
+    const newSquares = currentPiece.positions[newPosition].map(
+      (square: any) => ({
+        xPos: square.xPos,
+        yPos: square.yPos,
+      })
+    );
+
+    if (isOutOfBounds(newSquares)) {
       return;
     }
 
-    return;
+    currentPiece.position = newPosition;
   }
 
-  currentPiece.squares = newSquares;
-  currentPiece.centerPoint = newCenterPoint;
+  if (direction === "down") {
+    const newSquares = currentPiece.positions[currentPiece.position].map(
+      (square: any) => ({
+        xPos: square.xPos,
+        yPos: square.yPos + 25,
+      })
+    );
+
+    if (isOutOfBounds(newSquares)) {
+      const squares = currentPiece.positions[currentPiece.position].map(
+        (squarePosition) => {
+          return {
+            ...squarePosition,
+            colour: currentPiece.colour,
+          };
+        }
+      );
+      forbiddenSquares.push(...squares);
+
+      currentPiece = getRandomNewPiece();
+      gameOver = !!currentPiece.positions[currentPiece.position].find(
+        (square) => {
+          return forbiddenSquares.find((square2) => {
+            return square.xPos === square2.xPos && square.yPos === square2.yPos;
+          });
+        }
+      );
+
+      return;
+    }
+
+    currentPiece.positions.forEach((position: any) => {
+      position.forEach((squarePosition: any) => (squarePosition.yPos += 25));
+    });
+  }
+
+  if (direction === "left") {
+    const newSquares = currentPiece.positions[currentPiece.position].map(
+      (square: any) => ({
+        ...square,
+        xPos: square.xPos - 25,
+      })
+    );
+
+    if (isOutOfBounds(newSquares)) {
+      return;
+    }
+
+    currentPiece.positions.forEach((position: any) => {
+      position.forEach((squarePosition: any) => (squarePosition.xPos -= 25));
+    });
+  }
+
+  if (direction === "right") {
+    const newSquares = currentPiece.positions[currentPiece.position].map(
+      (square: any) => ({
+        ...square,
+        xPos: square.xPos + 25,
+      })
+    );
+
+    if (isOutOfBounds(newSquares)) {
+      return;
+    }
+
+    currentPiece.positions.forEach((position: any) => {
+      position.forEach((squarePosition: any) => (squarePosition.xPos += 25));
+    });
+  }
 };
 
 const handleKeyPress = (e: KeyboardEvent) => {
-  console.log("code", e.code);
-  // TODO add space bar to drop a piece instantly
   if (e.code === "ArrowDown") {
     handlePieceMovement("down");
   } else if (e.code === "ArrowLeft") {
@@ -151,12 +235,14 @@ const handleKeyPress = (e: KeyboardEvent) => {
         pieces.indexOf(pieces.find((piece) => piece.name === currentPiece.type))
       ](currentPiece.colour);
       currentPiece = getRandomNewPiece();
+
+      console.log(["queuedPiece", queuedPiece]);
     }
   } else if (e.code === "KeyW") {
     currentPiece = queuedPiece;
     queuedPiece = undefined;
   } else if (e.code === "Space") {
-    dropPiece();
+    // TODO implement dropPiece()
   }
 };
 
