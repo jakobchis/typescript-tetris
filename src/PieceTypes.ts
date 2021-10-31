@@ -6,8 +6,8 @@ class IPiece extends Piece {
     super();
     this.type = "IPiece";
     this.colour = colour ?? getRandomColor();
-    this.position = 0;
-    this.positions = [
+    this.orientationIndex = 0;
+    this.orientations = [
       [
         { xPos: 100, yPos: 25 },
         { xPos: 125, yPos: 25 },
@@ -41,8 +41,8 @@ class JPiece extends Piece {
     super();
     this.type = "JPiece";
     this.colour = colour ?? getRandomColor();
-    this.position = 0;
-    this.positions = [
+    this.orientationIndex = 0;
+    this.orientations = [
       [
         { xPos: 100, yPos: 0 },
         { xPos: 100, yPos: 25 },
@@ -76,8 +76,8 @@ class LPiece extends Piece {
     super();
     this.type = "LPiece";
     this.colour = colour ?? getRandomColor();
-    this.position = 0;
-    this.positions = [
+    this.orientationIndex = 0;
+    this.orientations = [
       [
         { xPos: 100, yPos: 25 },
         { xPos: 125, yPos: 25 },
@@ -111,8 +111,8 @@ class OPiece extends Piece {
     super();
     this.type = "OPiece";
     this.colour = colour ?? getRandomColor();
-    this.position = 0;
-    this.positions = [
+    this.orientationIndex = 0;
+    this.orientations = [
       [
         { xPos: 125, yPos: 0 },
         { xPos: 150, yPos: 0 },
@@ -128,8 +128,8 @@ class SPiece extends Piece {
     super();
     this.type = "SPiece";
     this.colour = colour ?? getRandomColor();
-    this.position = 0;
-    this.positions = [
+    this.orientationIndex = 0;
+    this.orientations = [
       [
         { xPos: 100, yPos: 25 },
         { xPos: 125, yPos: 25 },
@@ -163,8 +163,8 @@ class TPiece extends Piece {
     super();
     this.type = "TPiece";
     this.colour = colour ?? getRandomColor();
-    this.position = 0;
-    this.positions = [
+    this.orientationIndex = 0;
+    this.orientations = [
       [
         { xPos: 100, yPos: 25 },
         { xPos: 125, yPos: 0 },
@@ -198,8 +198,8 @@ class ZPiece extends Piece {
     super();
     this.type = "ZPiece";
     this.colour = colour ?? getRandomColor();
-    this.position = 0;
-    this.positions = [
+    this.orientationIndex = 0;
+    this.orientations = [
       [
         { xPos: 100, yPos: 0 },
         { xPos: 125, yPos: 0 },

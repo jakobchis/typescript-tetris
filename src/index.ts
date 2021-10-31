@@ -27,6 +27,16 @@ let currentPiece: Piece;
 let queuedPiece: Piece;
 let forbiddenSquares: ForbiddenSquare[] = [];
 let gameOver = false;
+let tickRate = 1000;
+let gameSpeed = 1;
+let gameSpeedCounter = 1;
+let messages: string[] = [];
+
+const getCopyOfPiece = (pieceToCopy: Piece) => {
+  return new pieces[
+    pieces.indexOf(pieces.find((piece) => piece.name === pieceToCopy.type))
+  ](pieceToCopy.colour);
+};
 
 const getRandomNewPiece = () => {
   return new pieces[Math.floor(Math.random() * pieces.length)]();
@@ -39,11 +49,21 @@ const tick = (timestamp: number) => {
 
   let elapsed = timestamp - previousTimestamp;
 
-  if (elapsed > 1000) {
+  // TODO need a second timestamp to handle game speed increases
+  // if (elapsed > 1000) {
+  //   gameSpeedCounter += 1;
+
+  //   if (gameSpeedCounter % 10 === 0) {
+  //     tickRate -= 100;
+  //     gameSpeed += 1;
+  //   }
+  // }
+
+  if (elapsed > tickRate) {
+    handlePieceMovement("down");
+
     previousTimestamp = timestamp;
     elapsed = 0;
-    console.log("TICK");
-    handlePieceMovement("down");
   }
 
   if (!gameOver) {
@@ -51,7 +71,7 @@ const tick = (timestamp: number) => {
     draw();
     window.requestAnimationFrame(tick);
   } else {
-    console.log("GAME OVER");
+    messages.push("Game over!")
     document.onkeydown = null;
   }
 };
@@ -63,7 +83,7 @@ const checkForLineClear = () => {
     );
 
     if (fullLine.length === gridSize.width) {
-      console.log("LINE CLEAR");
+      messages.push("Line clear!")
       fullLine.forEach((square) => {
         forbiddenSquares.splice(forbiddenSquares.indexOf(square), 1);
       });
@@ -76,7 +96,6 @@ const checkForLineClear = () => {
   }
 };
 
-// TODO add game messages text box on the screen
 const draw = () => {
   mainCtx.fillStyle = "White";
   mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
@@ -96,7 +115,14 @@ const draw = () => {
     }
   }
 
-  currentPiece.positions[currentPiece.position].forEach((square: any) => {
+  extraInfoCtx.fillStyle = "Black";
+  extraInfoCtx.font = "20px serif";
+  extraInfoCtx.fillText(`Game speed: ${gameSpeed}`, 0, 150);
+  messages.forEach((message) => {
+    extraInfoCtx.fillText(message, 0, 200);
+  })
+
+  currentPiece.getCurrentOrientation().forEach((square: any) => {
     mainCtx.fillStyle = currentPiece.colour;
     mainCtx.fillRect(square.xPos, square.yPos, 25, 25);
   });
@@ -106,7 +132,7 @@ const draw = () => {
     mainCtx.fillRect(square.xPos, square.yPos, 25, 25);
   });
 
-  queuedPiece?.positions[0].forEach((square: any) => {
+  queuedPiece?.getOrientation(0).forEach((square: any) => {
     extraInfoCtx.fillStyle = queuedPiece.colour;
     extraInfoCtx.fillRect(square.xPos - 100, square.yPos, 25, 25);
   });
@@ -131,91 +157,108 @@ const isOutOfBounds = (newSquares: PieceSquare[]) => {
 
 const handlePieceMovement = (direction: string) => {
   if (direction === "up") {
-    const newPosition =
-      currentPiece.position + 1 < currentPiece.positions.length
-        ? currentPiece.position + 1
-        : 0;
-    const newSquares = currentPiece.positions[newPosition].map(
-      (square: any) => ({
+    const newOrientation = currentPiece.getNextOrientationIndex();
+    const newSquares = currentPiece
+      .getOrientation(newOrientation)
+      .map((square: any) => ({
         xPos: square.xPos,
         yPos: square.yPos,
-      })
-    );
+      }));
 
     if (isOutOfBounds(newSquares)) {
       return;
     }
 
-    currentPiece.position = newPosition;
+    currentPiece.setOrientation(newOrientation);
   }
 
   if (direction === "down") {
-    const newSquares = currentPiece.positions[currentPiece.position].map(
-      (square: any) => ({
+    const newSquares = currentPiece
+      .getCurrentOrientation()
+      .map((square: any) => ({
         xPos: square.xPos,
         yPos: square.yPos + 25,
-      })
-    );
+      }));
 
     if (isOutOfBounds(newSquares)) {
-      const squares = currentPiece.positions[currentPiece.position].map(
-        (squarePosition) => {
+      const squares = currentPiece
+        .getCurrentOrientation()
+        .map((squarePosition) => {
           return {
             ...squarePosition,
             colour: currentPiece.colour,
           };
-        }
-      );
+        });
       forbiddenSquares.push(...squares);
 
       currentPiece = getRandomNewPiece();
-      gameOver = !!currentPiece.positions[currentPiece.position].find(
-        (square) => {
-          return forbiddenSquares.find((square2) => {
-            return square.xPos === square2.xPos && square.yPos === square2.yPos;
-          });
-        }
-      );
+      gameOver = !!currentPiece.getCurrentOrientation().find((square) => {
+        return forbiddenSquares.find((square2) => {
+          return square.xPos === square2.xPos && square.yPos === square2.yPos;
+        });
+      });
 
       return;
     }
 
-    currentPiece.positions.forEach((position: any) => {
+    currentPiece.getOrientations().forEach((position: any) => {
       position.forEach((squarePosition: any) => (squarePosition.yPos += 25));
     });
   }
 
   if (direction === "left") {
-    const newSquares = currentPiece.positions[currentPiece.position].map(
-      (square: any) => ({
+    const newSquares = currentPiece
+      .getCurrentOrientation()
+      .map((square: any) => ({
         ...square,
         xPos: square.xPos - 25,
-      })
-    );
+      }));
 
     if (isOutOfBounds(newSquares)) {
       return;
     }
 
-    currentPiece.positions.forEach((position: any) => {
+    currentPiece.getOrientations().forEach((position: any) => {
       position.forEach((squarePosition: any) => (squarePosition.xPos -= 25));
     });
   }
 
   if (direction === "right") {
-    const newSquares = currentPiece.positions[currentPiece.position].map(
-      (square: any) => ({
+    const newSquares = currentPiece
+      .getCurrentOrientation()
+      .map((square: any) => ({
         ...square,
         xPos: square.xPos + 25,
-      })
-    );
+      }));
 
     if (isOutOfBounds(newSquares)) {
       return;
     }
 
-    currentPiece.positions.forEach((position: any) => {
+    currentPiece.getOrientations().forEach((position: any) => {
       position.forEach((squarePosition: any) => (squarePosition.xPos += 25));
+    });
+  }
+};
+
+const dropPiece = () => {
+  let dropping = true;
+
+  while (dropping) {
+    const newSquares = currentPiece
+      .getCurrentOrientation()
+      .map((square: any) => ({
+        xPos: square.xPos,
+        yPos: square.yPos + 25,
+      }));
+
+    if (isOutOfBounds(newSquares)) {
+      dropping = false;
+      return;
+    }
+
+    currentPiece.getOrientations().forEach((position: any) => {
+      position.forEach((squarePosition: any) => (squarePosition.yPos += 25));
     });
   }
 };
@@ -230,19 +273,16 @@ const handleKeyPress = (e: KeyboardEvent) => {
   } else if (e.code === "ArrowUp") {
     handlePieceMovement("up");
   } else if (e.code === "KeyQ") {
-    if (!queuedPiece) {
-      queuedPiece = new pieces[
-        pieces.indexOf(pieces.find((piece) => piece.name === currentPiece.type))
-      ](currentPiece.colour);
+    if (queuedPiece) {
+      const oldCurrentPiece = getCopyOfPiece(currentPiece);
+      currentPiece = getCopyOfPiece(queuedPiece);
+      queuedPiece = oldCurrentPiece;
+    } else {
+      queuedPiece = getCopyOfPiece(currentPiece);
       currentPiece = getRandomNewPiece();
-
-      console.log(["queuedPiece", queuedPiece]);
     }
-  } else if (e.code === "KeyW") {
-    currentPiece = queuedPiece;
-    queuedPiece = undefined;
   } else if (e.code === "Space") {
-    // TODO implement dropPiece()
+    dropPiece();
   }
 };
 
