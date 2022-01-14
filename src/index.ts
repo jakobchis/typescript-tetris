@@ -9,7 +9,7 @@ import {
   ZPiece,
 } from "./PieceTypes";
 
-// Look here for documentation on pieces
+// Look here for documentation on tetris pieces
 // https://tetris.fandom.com/wiki/SRS
 
 const pieces = [IPiece, JPiece, LPiece, OPiece, SPiece, TPiece, ZPiece];
@@ -26,11 +26,13 @@ let previousTimestamp: number = 0;
 let currentPiece: Piece;
 let queuedPiece: Piece;
 let forbiddenSquares: ForbiddenSquare[] = [];
-let gameOver = false;
 let tickRate = 1000;
 let gameSpeed = 1;
+let gameOver = false;
+// TODO add game speed
 let gameSpeedCounter = 1;
 let messages: string[] = [];
+let requestId: number;
 
 const getCopyOfPiece = (pieceToCopy: Piece) => {
   return new pieces[
@@ -42,38 +44,29 @@ const getRandomNewPiece = () => {
   return new pieces[Math.floor(Math.random() * pieces.length)]();
 };
 
-const tick = (timestamp: number) => {
-  if (previousTimestamp === undefined) {
-    previousTimestamp = timestamp;
-  }
-
-  let elapsed = timestamp - previousTimestamp;
-
-  // TODO need a second timestamp to handle game speed increases
-  // if (elapsed > 1000) {
-  //   gameSpeedCounter += 1;
-
-  //   if (gameSpeedCounter % 10 === 0) {
-  //     tickRate -= 100;
-  //     gameSpeed += 1;
-  //   }
-  // }
-
-  if (elapsed > tickRate) {
-    handlePieceMovement("down");
-
-    previousTimestamp = timestamp;
-    elapsed = 0;
-  }
-
+const tick = (timestamp?: number) => {
   if (!gameOver) {
-    checkForLineClear();
-    draw();
-    window.requestAnimationFrame(tick);
+    if (previousTimestamp === undefined) {
+      previousTimestamp = timestamp;
+    }
+
+    let elapsed = timestamp - previousTimestamp;
+
+    if (elapsed > tickRate) {
+      handlePieceMovement("down");
+
+      checkForLineClear();
+      previousTimestamp = timestamp;
+      elapsed = 0;
+    }
+
+    requestId = requestAnimationFrame(tick);
   } else {
-    messages.push("Game over!")
-    document.onkeydown = null;
+    messages.push("Game over!");
+    cancelAnimationFrame(requestId);
   }
+
+  draw();
 };
 
 const checkForLineClear = () => {
@@ -83,7 +76,8 @@ const checkForLineClear = () => {
     );
 
     if (fullLine.length === gridSize.width) {
-      messages.push("Line clear!")
+      messages.push("Line clear!");
+
       fullLine.forEach((square) => {
         forbiddenSquares.splice(forbiddenSquares.indexOf(square), 1);
       });
@@ -115,12 +109,12 @@ const draw = () => {
     }
   }
 
-  extraInfoCtx.fillStyle = "Black";
-  extraInfoCtx.font = "20px serif";
-  extraInfoCtx.fillText(`Game speed: ${gameSpeed}`, 0, 150);
-  messages.forEach((message) => {
-    extraInfoCtx.fillText(message, 0, 200);
-  })
+  document.getElementById("gameMessages").innerHTML = messages.reduce(
+    (acc, message) => {
+      return `${acc}${message}<br>`;
+    },
+    `Game speed: ${gameSpeed}<br>Game messages:<br>`
+  );
 
   currentPiece.getCurrentOrientation().forEach((square: any) => {
     mainCtx.fillStyle = currentPiece.colour;
@@ -138,13 +132,22 @@ const draw = () => {
   });
 };
 
+// TODO move utils like these to utils.ts
+const isGameOver = (newSquares: PieceSquare[]) => {
+  return !!newSquares.find((square) => {
+    return forbiddenSquares.find((square2) => {
+      return square.xPos === square2.xPos && square.yPos === square2.yPos;
+    });
+  });
+};
+
 const isOutOfBounds = (newSquares: PieceSquare[]) => {
   return newSquares.find((square) => {
     return (
-      square.yPos >= 550 ||
+      square.yPos > 525 ||
+      square.yPos < 0 ||
       square.xPos < 0 ||
-      square.xPos < 0 ||
-      square.xPos >= 300 ||
+      square.xPos > 275 ||
       forbiddenSquares.find((forbiddenSquare) => {
         return (
           forbiddenSquare.yPos === square.yPos &&
@@ -191,12 +194,13 @@ const handlePieceMovement = (direction: string) => {
         });
       forbiddenSquares.push(...squares);
 
-      currentPiece = getRandomNewPiece();
-      gameOver = !!currentPiece.getCurrentOrientation().find((square) => {
-        return forbiddenSquares.find((square2) => {
-          return square.xPos === square2.xPos && square.yPos === square2.yPos;
-        });
-      });
+      const newPiece = getRandomNewPiece();
+
+      if (isGameOver(newPiece.getCurrentOrientation())) {
+        gameOver = true;
+      } else {
+        currentPiece = newPiece;
+      }
 
       return;
     }
@@ -243,6 +247,7 @@ const handlePieceMovement = (direction: string) => {
 
 const dropPiece = () => {
   let dropping = true;
+  // window.cancelAnimationFrame(requestId);
 
   while (dropping) {
     const newSquares = currentPiece
@@ -254,6 +259,7 @@ const dropPiece = () => {
 
     if (isOutOfBounds(newSquares)) {
       dropping = false;
+      // requestId = window.requestAnimationFrame(tick);
       return;
     }
 
@@ -264,6 +270,10 @@ const dropPiece = () => {
 };
 
 const handleKeyPress = (e: KeyboardEvent) => {
+  if (!requestId) {
+    requestId = requestAnimationFrame(tick);
+  }
+
   if (e.code === "ArrowDown") {
     handlePieceMovement("down");
   } else if (e.code === "ArrowLeft") {
@@ -286,7 +296,7 @@ const handleKeyPress = (e: KeyboardEvent) => {
   }
 };
 
-window.addEventListener("load", () => {
+addEventListener("load", () => {
   mainCanvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
   extraInfoCanvas = document.getElementById(
     "extraInfoCanvas"
@@ -295,7 +305,6 @@ window.addEventListener("load", () => {
   extraInfoCtx = extraInfoCanvas.getContext("2d");
   currentPiece = getRandomNewPiece();
 
-  draw();
   document.onkeydown = handleKeyPress;
-  window.requestAnimationFrame(tick);
+  draw();
 });

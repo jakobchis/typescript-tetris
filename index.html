@@ -13,28 +13,29 @@
       </div>
       <div style="display: flex; flex-direction: row">
         <div style="margin: 20px">
-          <canvas id="extraInfoCanvas" width="160" height="600"></canvas>
+          <canvas id="extraInfoCanvas" width="100" height="100"></canvas>
         </div>
         <div style="margin: 20px">
           <canvas id="mainCanvas" width="300" height="550"></canvas>
         </div>
-        <div style="margin: 20px">
-          <h3>controls</h3>
-          <ul>
-            <li>
-              <strong>Left</strong>, <strong>Right</strong>, and
-              <strong>Down</strong> arrow keys to move
-            </li>
-            <li>
-              <strong>Up</strong> arrow key to rotate 90 degrees clockwise
-            </li>
-            <li>
-              <strong>Q</strong> key to hold a piece
-            </li>
-            <li>
-              <strong>Space</strong> key to drop piece
-            </li>
-          </ul>
+        <div style="margin: 20px; display: flex; flex-direction: column">
+          <div>
+            <h3>controls</h3>
+            <ul>
+              <li>
+                <strong>Left</strong>, <strong>Right</strong>, and
+                <strong>Down</strong> arrow keys to move
+              </li>
+              <li>
+                <strong>Up</strong> arrow key to rotate 90 degrees clockwise
+              </li>
+              <li><strong>Q</strong> key to hold a piece</li>
+              <li><strong>Space</strong> key to drop piece</li>
+            </ul>
+          </div>
+          <div>
+            <p id="gameMessages"></p>
+          </div>
         </div>
       </div>
     </div>
