@@ -1,3 +1,6 @@
+import { ORIENTATIONS, PIECE_TYPES } from "./utils";
+import { cloneDeep } from "lodash";
+
 interface PieceSquare {
   xPos: number;
   yPos: number;
@@ -10,17 +13,21 @@ interface ForbiddenSquare extends PieceSquare {
 type Orientation = PieceSquare[];
 
 class Piece {
+  type: typeof PIECE_TYPES[number];
+  colour: string;
   orientationIndex: number;
   orientations: Orientation[];
-  colour: string;
-  type:
-    | "IPiece"
-    | "JPiece"
-    | "LPiece"
-    | "OPiece"
-    | "SPiece"
-    | "TPiece"
-    | "ZPiece";
+
+  constructor(
+    type: typeof PIECE_TYPES[number],
+    colour: string,
+    orientationIndex: number
+  ) {
+    this.type = type;
+    this.colour = colour;
+    this.orientationIndex = orientationIndex;
+    this.orientations = cloneDeep(ORIENTATIONS[type]);
+  }
 
   getCurrentOrientation = () => {
     return this.orientations[this.orientationIndex];
@@ -38,7 +45,7 @@ class Piece {
     if (this.orientationIndex + 1 < this.orientations.length) {
       return this.orientationIndex + 1;
     }
-    
+
     return 0;
   };
 
@@ -47,4 +54,4 @@ class Piece {
   };
 }
 
-export { PieceSquare, ForbiddenSquare, Piece };
+export { PieceSquare, ForbiddenSquare, Piece, Orientation };
