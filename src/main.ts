@@ -1,28 +1,18 @@
 import { Piece, PieceSquare, ForbiddenSquare } from "./Piece";
-import {
-  IPiece,
-  JPiece,
-  LPiece,
-  OPiece,
-  SPiece,
-  TPiece,
-  ZPiece,
-} from "./PieceTypes";
+import { getRandomColor, ORIENTATIONS, PIECE_TYPES } from "./utils";
 
 // Look here for documentation on tetris pieces
 // https://tetris.fandom.com/wiki/SRS
 
-const pieces = [IPiece, JPiece, LPiece, OPiece, SPiece, TPiece, ZPiece];
-
 // TODO move these to an exported consts file?
-const squareSize = { width: 25, height: 25 };
+// const squareSize = { width: 25, height: 25 };
 const gridSize = { height: 22, width: 12 };
 
 let mainCanvas: HTMLCanvasElement;
 let extraInfoCanvas: HTMLCanvasElement;
 let mainCtx: CanvasRenderingContext2D;
 let extraInfoCtx: CanvasRenderingContext2D;
-let previousTimestamp: number = 0;
+let previousTimestamp: number | undefined = 0;
 let currentPiece: Piece;
 let queuedPiece: Piece;
 let forbiddenSquares: ForbiddenSquare[] = [];
@@ -30,21 +20,24 @@ let tickRate = 1000;
 let gameSpeed = 1;
 let gameOver = false;
 // TODO add game speed
-let gameSpeedCounter = 1;
+// let gameSpeedCounter = 1;
 let messages: string[] = [];
 let requestId: number;
 
+// TODO to be real OOP
+// https://www.youtube.com/watch?v=3EMxBkqC4z0
+
 const getCopyOfPiece = (pieceToCopy: Piece) => {
-  return new pieces[
-    pieces.indexOf(pieces.find((piece) => piece.name === pieceToCopy.type))
-  ](pieceToCopy.colour);
+  return new Piece(pieceToCopy.type, pieceToCopy.colour, 0);
 };
 
 const getRandomNewPiece = () => {
-  return new pieces[Math.floor(Math.random() * pieces.length)]();
+  const randomType =
+    PIECE_TYPES[Math.floor(Math.random() * PIECE_TYPES.length)];
+  return new Piece(randomType, getRandomColor(), 0);
 };
 
-const tick = (timestamp?: number) => {
+const tick = (timestamp: number) => {
   if (!gameOver) {
     if (previousTimestamp === undefined) {
       previousTimestamp = timestamp;
@@ -109,12 +102,12 @@ const draw = () => {
     }
   }
 
-  document.getElementById("gameMessages").innerHTML = messages.reduce(
-    (acc, message) => {
+  const messagesDiv = document.getElementById("gameMessages");
+  if (messagesDiv) {
+    messagesDiv.innerHTML = messages.reduce((acc, message) => {
       return `${acc}${message}<br>`;
-    },
-    `Game speed: ${gameSpeed}<br>Game messages:<br>`
-  );
+    }, `Game speed: ${gameSpeed}<br>Game messages:<br>`);
+  }
 
   currentPiece.getCurrentOrientation().forEach((square: any) => {
     mainCtx.fillStyle = currentPiece.colour;
@@ -132,7 +125,6 @@ const draw = () => {
   });
 };
 
-// TODO move utils like these to utils.ts
 const isGameOver = (newSquares: PieceSquare[]) => {
   return !!newSquares.find((square) => {
     return forbiddenSquares.find((square2) => {
@@ -247,7 +239,6 @@ const handlePieceMovement = (direction: string) => {
 
 const dropPiece = () => {
   let dropping = true;
-  // window.cancelAnimationFrame(requestId);
 
   while (dropping) {
     const newSquares = currentPiece
@@ -259,7 +250,6 @@ const dropPiece = () => {
 
     if (isOutOfBounds(newSquares)) {
       dropping = false;
-      // requestId = window.requestAnimationFrame(tick);
       return;
     }
 
@@ -301,8 +291,8 @@ addEventListener("load", () => {
   extraInfoCanvas = document.getElementById(
     "extraInfoCanvas"
   ) as HTMLCanvasElement;
-  mainCtx = mainCanvas.getContext("2d");
-  extraInfoCtx = extraInfoCanvas.getContext("2d");
+  mainCtx = mainCanvas.getContext("2d")!;
+  extraInfoCtx = extraInfoCanvas.getContext("2d")!;
   currentPiece = getRandomNewPiece();
 
   document.onkeydown = handleKeyPress;
