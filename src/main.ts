@@ -1,5 +1,5 @@
 import { Piece, PieceSquare, ForbiddenSquare } from "./Piece";
-import { getRandomColor, ORIENTATIONS, PIECE_TYPES } from "./utils";
+import { getRandomColor, PIECE_TYPES } from "./utils";
 
 // Look here for documentation on tetris pieces
 // https://tetris.fandom.com/wiki/SRS
