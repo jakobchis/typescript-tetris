@@ -1,4 +1,4 @@
-import { Orientation } from "./Piece";
+import { Piece } from "./Piece";
 
 const getRandomColor = () => {
   var letters = "0123456789ABCDEF";
@@ -7,6 +7,22 @@ const getRandomColor = () => {
     color += letters[Math.floor(Math.random() * 16)];
   }
   return color;
+};
+
+const getRandomNewPiece = () => {
+  const randomType =
+    PIECE_TYPES[Math.floor(Math.random() * PIECE_TYPES.length)];
+  return new Piece(randomType, getRandomColor(), 0);
+};
+
+const MAIN_CANVAS_DIMENSIONS = {
+  width: 300,
+  height: 550,
+};
+
+const EXTRA_INFO_CANVAS_DIMENSIONS = {
+  width: 100,
+  height: 100,
 };
 
 const PIECE_TYPES = [
@@ -19,7 +35,12 @@ const PIECE_TYPES = [
   "ZPiece",
 ];
 
-const ORIENTATIONS: Record<typeof PIECE_TYPES[number], Orientation[]> = {
+type Orientations = Record<
+  typeof PIECE_TYPES[number],
+  { xPos: number; yPos: number }[][]
+>;
+
+const ORIENTATIONS: Orientations = {
   IPiece: [
     [
       { xPos: 100, yPos: 25 },
@@ -186,4 +207,11 @@ const ORIENTATIONS: Record<typeof PIECE_TYPES[number], Orientation[]> = {
   ],
 };
 
-export { getRandomColor, ORIENTATIONS, PIECE_TYPES };
+export {
+  getRandomColor,
+  getRandomNewPiece,
+  ORIENTATIONS,
+  PIECE_TYPES,
+  MAIN_CANVAS_DIMENSIONS,
+  EXTRA_INFO_CANVAS_DIMENSIONS,
+};
