@@ -1,57 +1,44 @@
-import { ORIENTATIONS, PIECE_TYPES } from "./utils";
+import { PIECE_TYPES } from "./utils";
 import { cloneDeep } from "lodash";
-
-interface PieceSquare {
-  xPos: number;
-  yPos: number;
-}
-
-interface ForbiddenSquare extends PieceSquare {
-  colour: string;
-}
-
-type Orientation = PieceSquare[];
+import { PieceSquare } from "./PieceSquare";
+import { IMAGES } from "../assets/assets";
+import { ORIENTATIONS } from "./orientations";
 
 class Piece {
-  type: typeof PIECE_TYPES[number];
-  colour: string;
-  orientationIndex: number;
-  orientations: Orientation[];
+  type;
+  colour;
+  orientationIndex;
+  orientations;
+  squares;
 
   constructor(
     type: typeof PIECE_TYPES[number],
-    colour: string,
-    orientationIndex: number
+    colour: keyof typeof IMAGES,
+    isQueuedPiece: boolean
   ) {
     this.type = type;
     this.colour = colour;
-    this.orientationIndex = orientationIndex;
-    this.orientations = cloneDeep(ORIENTATIONS[type]);
+    this.orientations = cloneDeep(ORIENTATIONS[type]).map((orientation) =>
+      orientation.map((pieceSquare) => {
+        const xPos = !isQueuedPiece ? pieceSquare.xPos + 100 : pieceSquare.xPos;
+        return new PieceSquare(xPos, pieceSquare.yPos, this.colour);
+      })
+    );
+    this.orientationIndex = 0;
+    this.squares = this.orientations[this.orientationIndex];
   }
 
-  getCurrentOrientation = () => {
-    return this.orientations[this.orientationIndex];
-  };
-
-  getOrientation = (index: number) => {
-    return this.orientations[index];
-  };
-
-  getOrientations = () => {
-    return this.orientations;
-  };
-
-  getNextOrientationIndex = () => {
+  getNextOrientationIndex() {
     if (this.orientationIndex + 1 < this.orientations.length) {
       return this.orientationIndex + 1;
     }
 
     return 0;
-  };
+  }
 
-  setOrientation = (index: number) => {
-    this.orientationIndex = index;
-  };
+  draw(context: CanvasRenderingContext2D) {
+    this.squares.forEach((square: PieceSquare) => square.draw(context));
+  }
 }
 
-export { PieceSquare, ForbiddenSquare, Piece, Orientation };
+export { Piece };

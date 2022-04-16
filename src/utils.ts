@@ -1,13 +1,27 @@
-import { Orientation } from "./Piece";
+import { Piece } from "./Piece";
+
+const COLOURS = ["red", "blue"] as const;
 
 const getRandomColor = () => {
-  var letters = "0123456789ABCDEF";
-  var color = "#";
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
+  return COLOURS[Math.floor(Math.random() * COLOURS.length)];
 };
+
+const getRandomNewPiece = () => {
+  const randomType = PIECE_TYPES[Math.floor(Math.random() * PIECE_TYPES.length)];
+  return new Piece(randomType, getRandomColor(), false);
+};
+
+const MAIN_CANVAS_DIMENSIONS = {
+  width: 300,
+  height: 550,
+};
+
+const EXTRA_INFO_CANVAS_DIMENSIONS = {
+  width: 100,
+  height: 100,
+};
+
+const SQUARE_DIMENSION = 25;
 
 const PIECE_TYPES = [
   "IPiece",
@@ -19,171 +33,11 @@ const PIECE_TYPES = [
   "ZPiece",
 ];
 
-const ORIENTATIONS: Record<typeof PIECE_TYPES[number], Orientation[]> = {
-  IPiece: [
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-      { xPos: 175, yPos: 25 },
-    ],
-    [
-      { xPos: 150, yPos: 0 },
-      { xPos: 150, yPos: 25 },
-      { xPos: 150, yPos: 50 },
-      { xPos: 150, yPos: 75 },
-    ],
-    [
-      { xPos: 100, yPos: 50 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 150, yPos: 50 },
-      { xPos: 175, yPos: 50 },
-    ],
-    [
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 125, yPos: 75 },
-    ],
-  ],
-  JPiece: [
-    [
-      { xPos: 100, yPos: 0 },
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-    ],
-    [
-      { xPos: 125, yPos: 0 },
-      { xPos: 150, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-    ],
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-      { xPos: 150, yPos: 50 },
-    ],
-    [
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 100, yPos: 50 },
-    ],
-  ],
-  LPiece: [
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-      { xPos: 150, yPos: 0 },
-    ],
-    [
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 150, yPos: 50 },
-    ],
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 100, yPos: 50 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-    ],
-    [
-      { xPos: 100, yPos: 0 },
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-    ],
-  ],
-  OPiece: [
-    [
-      { xPos: 125, yPos: 0 },
-      { xPos: 150, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-    ],
-  ],
-  SPiece: [
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 0 },
-      { xPos: 150, yPos: 0 },
-    ],
-    [
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-      { xPos: 150, yPos: 50 },
-    ],
-    [
-      { xPos: 100, yPos: 50 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-    ],
-    [
-      { xPos: 100, yPos: 0 },
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-    ],
-  ],
-  TPiece: [
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-    ],
-    [
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 150, yPos: 25 },
-    ],
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 150, yPos: 25 },
-    ],
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-    ],
-  ],
-  ZPiece: [
-    [
-      { xPos: 100, yPos: 0 },
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 150, yPos: 25 },
-    ],
-    [
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 150, yPos: 0 },
-      { xPos: 150, yPos: 25 },
-    ],
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 125, yPos: 25 },
-      { xPos: 125, yPos: 50 },
-      { xPos: 150, yPos: 50 },
-    ],
-    [
-      { xPos: 100, yPos: 25 },
-      { xPos: 100, yPos: 50 },
-      { xPos: 125, yPos: 0 },
-      { xPos: 125, yPos: 25 },
-    ],
-  ],
+export {
+  getRandomColor,
+  getRandomNewPiece,
+  PIECE_TYPES,
+  MAIN_CANVAS_DIMENSIONS,
+  EXTRA_INFO_CANVAS_DIMENSIONS,
+  SQUARE_DIMENSION
 };
-
-export { getRandomColor, ORIENTATIONS, PIECE_TYPES };
