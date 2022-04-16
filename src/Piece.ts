@@ -1,39 +1,31 @@
-import { ORIENTATIONS, PIECE_TYPES } from "./utils";
+import { PIECE_TYPES } from "./utils";
 import { cloneDeep } from "lodash";
 import { PieceSquare } from "./PieceSquare";
+import { IMAGES } from "../assets/assets";
+import { ORIENTATIONS } from "./orientations";
 
 class Piece {
   type;
   colour;
   orientationIndex;
   orientations;
+  squares;
 
   constructor(
     type: typeof PIECE_TYPES[number],
-    colour: string,
-    orientationIndex: number
+    colour: keyof typeof IMAGES,
+    isQueuedPiece: boolean
   ) {
     this.type = type;
     this.colour = colour;
-    this.orientationIndex = orientationIndex;
     this.orientations = cloneDeep(ORIENTATIONS[type]).map((orientation) =>
-      orientation.map(
-        (pieceSquare) =>
-          new PieceSquare(pieceSquare.xPos, pieceSquare.yPos, this.colour)
-      )
+      orientation.map((pieceSquare) => {
+        const xPos = !isQueuedPiece ? pieceSquare.xPos + 100 : pieceSquare.xPos;
+        return new PieceSquare(xPos, pieceSquare.yPos, this.colour);
+      })
     );
-  }
-
-  getCurrentOrientation() {
-    return this.orientations[this.orientationIndex];
-  }
-
-  getOrientation(index: number) {
-    return this.orientations[index];
-  }
-
-  getOrientations() {
-    return this.orientations;
+    this.orientationIndex = 0;
+    this.squares = this.orientations[this.orientationIndex];
   }
 
   getNextOrientationIndex() {
@@ -44,14 +36,8 @@ class Piece {
     return 0;
   }
 
-  setOrientation(index: number) {
-    this.orientationIndex = index;
-  }
-
   draw(context: CanvasRenderingContext2D) {
-    this.getCurrentOrientation().forEach((square: PieceSquare) =>
-      square.draw(context)
-    );
+    this.squares.forEach((square: PieceSquare) => square.draw(context));
   }
 }
 
