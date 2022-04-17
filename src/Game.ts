@@ -1,9 +1,11 @@
+import { Message } from "./Message";
 import { Piece } from "./Piece";
 import { PieceSquare } from "./PieceSquare";
 import {
   EXTRA_INFO_CANVAS_DIMENSIONS,
   getRandomNewPiece,
   MAIN_CANVAS_DIMENSIONS,
+  MESSAGES_CANVAS_DIMENSIONS,
   SQUARE_DIMENSION,
 } from "./utils";
 
@@ -11,23 +13,30 @@ class Game {
   currentPiece;
   queuedPiece: Piece | undefined;
   forbiddenSquares: PieceSquare[] = [];
-  messages;
+  messages: Message[] = [];
   mainCtx;
   extraInfoCtx;
+  messagesCtx;
 
   constructor(
     initialPiece: Piece,
     mainCtx: CanvasRenderingContext2D,
-    extraInfoCtx: CanvasRenderingContext2D
+    extraInfoCtx: CanvasRenderingContext2D,
+    messagesCtx: CanvasRenderingContext2D
   ) {
     this.currentPiece = initialPiece;
-    this.queuedPiece = undefined;
     this.mainCtx = mainCtx;
     this.extraInfoCtx = extraInfoCtx;
-    this.messages = [""];
+    this.messagesCtx = messagesCtx;
   }
 
   update(direction: string) {
+    this.messages.forEach((message) => (message.age += 1));
+    this.messages = this.messages.filter((message) => message.age <= 20);
+
+    // TODO: movement stuff should actually be on Piece class
+    // game.handleMovemenet(direction) => currentPiece.move(direction)
+    // game.update() should just be for updating game state each tick, doing messages, etc
     if (direction === "up") {
       const nextOrientationIndex = this.currentPiece.getNextOrientationIndex();
       const newSquares = this.currentPiece.orientations[nextOrientationIndex];
@@ -156,7 +165,7 @@ class Game {
       );
 
       if (fullLine.length === MAIN_CANVAS_DIMENSIONS.width / 25) {
-        this.messages.push("Line clear!");
+        this.messages.push(new Message("LINE CLEAR!"));
 
         fullLine.forEach((square) => {
           this.forbiddenSquares.splice(
@@ -174,11 +183,17 @@ class Game {
   }
 
   checkGameOver() {
-    return !!this.currentPiece.squares.find((square) => {
+    const gameOver = !!this.currentPiece.squares.find((square) => {
       return this.forbiddenSquares.find((square2) => {
         return square.xPos === square2.xPos && square.yPos === square2.yPos;
       });
     });
+
+    if (gameOver) {
+      this.messages.push(new Message("GAME OVER!"));
+    }
+
+    return gameOver;
   }
 
   checkOutOfBounds(newSquares: { xPos: number; yPos: number }[]) {
@@ -213,6 +228,13 @@ class Game {
       EXTRA_INFO_CANVAS_DIMENSIONS.width,
       EXTRA_INFO_CANVAS_DIMENSIONS.height
     );
+    this.messagesCtx.fillStyle = "Black";
+    this.messagesCtx.fillRect(
+      0,
+      0,
+      MESSAGES_CANVAS_DIMENSIONS.width,
+      MESSAGES_CANVAS_DIMENSIONS.height
+    );
 
     this.mainCtx.strokeStyle = "LightGray";
     for (let i = 0; i < 300; i += SQUARE_DIMENSION) {
@@ -227,17 +249,12 @@ class Game {
       }
     }
 
-    // TODO: replace messages div stuff with drawable images for line clear, game over, etc
-    const messagesDiv = document.getElementById("gameMessages");
-    if (messagesDiv) {
-      messagesDiv.innerHTML = this.messages?.reduce((acc, message) => {
-        return `${acc}${message}<br>`;
-      }, `Game speed: ${1}<br>Game messages:<br>`);
-    }
-
     this.currentPiece?.draw(this.mainCtx);
     this.queuedPiece?.draw(this.extraInfoCtx);
     this.forbiddenSquares.forEach((square) => square.draw(this.mainCtx));
+    this.messages.forEach((message, index) =>
+      message.draw(this.messagesCtx, this.messages.length - index)
+    );
   }
 }
 
