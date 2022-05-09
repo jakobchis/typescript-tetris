@@ -228,7 +228,7 @@ class Game {
       EXTRA_INFO_CANVAS_DIMENSIONS.width,
       EXTRA_INFO_CANVAS_DIMENSIONS.height
     );
-    this.messagesCtx.fillStyle = "Black";
+    this.messagesCtx.fillStyle = "#2d2d36";
     this.messagesCtx.fillRect(
       0,
       0,

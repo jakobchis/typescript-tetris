@@ -9,7 +9,7 @@ class Message {
 
   draw(context: CanvasRenderingContext2D, offset: number) {
     context.font = "20px Comic Sans MS";
-    context.fillStyle = "Yellow";
+    context.fillStyle = "White";
     context.fillText(this.text, 10, offset * 25, 300);
   }
 }

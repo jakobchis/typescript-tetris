@@ -29,10 +29,10 @@ const MESSAGES_CANVAS_DIMENSIONS = {
 
 const TICK_RATE = {
   default: 1000,
-  min: 300,
+  min: 200,
 };
 
-const SPEED_INCREASE_INTERVAL = 15;
+const SPEED_INCREASE_INTERVAL = 10000;
 
 const SQUARE_DIMENSION = 25;
 

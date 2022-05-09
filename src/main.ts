@@ -1,5 +1,6 @@
 import { Game } from "./Game";
 import { inputHandler } from "./inputHandler";
+import { Message } from "./Message";
 import { getRandomNewPiece, SPEED_INCREASE_INTERVAL, TICK_RATE } from "./utils";
 
 // Look here for documentation on tetris pieces
@@ -9,6 +10,7 @@ let previousTimestamp = 0;
 let tickRate = TICK_RATE.default;
 let requestId: number;
 let game: Game;
+let tickRateInterval: number;
 
 addEventListener("load", () => {
   const mainCanvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
@@ -27,6 +29,13 @@ addEventListener("load", () => {
 
   game = new Game(getRandomNewPiece(), mainCtx, extraInfoCtx, messagesCtx);
 
+  tickRateInterval = setInterval(() => {
+    game.messages.push(
+      new Message(`game speed: level ${(TICK_RATE.default - tickRate) / 100}`)
+    );
+    tickRate = tickRate > TICK_RATE.min ? (tickRate -= 100) : TICK_RATE.min;
+  }, SPEED_INCREASE_INTERVAL);
+
   requestAnimationFrame(tick);
 });
 
@@ -39,13 +48,6 @@ const tick = (timestamp: number) => {
   let gameOver = false;
 
   if (elapsed > tickRate) {
-    console.log("timestamp in seconds", timestamp / 1000);
-    console.log("current tickrate " + tickRate);
-
-    const modifier = Math.floor(timestamp / 1000 / SPEED_INCREASE_INTERVAL);
-    tickRate = tickRate > TICK_RATE.min ? 1000 - 100 * modifier : 200;
-
-    // TODO: game updating in general shouldn't be tied to an increasing tick rate, should just be the down movement that gets faster
     game.update("down");
     game.checkForLineClear();
     gameOver = game.checkGameOver();
@@ -54,9 +56,13 @@ const tick = (timestamp: number) => {
     elapsed = 0;
   }
 
-  if (!gameOver) {
-    requestId = requestAnimationFrame(tick);
+  game.draw();
+
+  if (gameOver) {
+    cancelAnimationFrame(requestId);
+    clearInterval(tickRateInterval);
+    return;
   }
 
-  game.draw();
+  requestId = requestAnimationFrame(tick);
 };
