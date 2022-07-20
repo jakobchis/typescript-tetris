@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <script type="module" src="./src/main.ts"></script>
-    <link rel="stylesheet" href="./src/styles.css">
+    <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
     <div
@@ -19,21 +19,30 @@
         <div style="margin: 20px">
           <canvas id="mainCanvas" width="300" height="550"></canvas>
         </div>
-        <div style="margin: 20px; display: flex; flex-direction: column">
-          <div>
-            <h3>controls</h3>
-            <ul>
-              <li>
-                <strong>Left/A</strong>, <strong>Right/D</strong>, and
-                <strong>Down/S</strong> keys to move
-              </li>
-              <li><strong>Up/W</strong> keys to rotate 90 degrees clockwise</li>
-              <li><strong>Q</strong> key to hold a piece</li>
-              <li><strong>Space</strong> key to drop piece</li>
-            </ul>
+        <div style="display: flex">
+          <div style="margin: 20px; display: flex; flex-direction: column">
+            <div>
+              <h3>controls</h3>
+              <ul>
+                <li>
+                  <strong>Left/A</strong>, <strong>Right/D</strong>, and
+                  <strong>Down/S</strong> keys to move
+                </li>
+                <li>
+                  <strong>Up/W</strong> keys to rotate 90 degrees clockwise
+                </li>
+                <li><strong>Q</strong> key to hold a piece</li>
+                <li><strong>Space</strong> key to drop piece</li>
+              </ul>
+            </div>
+            <div style="display: flex; flex-direction: column">
+              <span id="gameSpeedSpan"></span>
+              <span id="messagesSpan"></span>
+            </div>
           </div>
           <div>
-            <canvas id="messagesCanvas" width="300" height="400"></canvas>
+            <h3>scores</h3>
+            <span id="scoresSpan">no scores found</span>
           </div>
         </div>
       </div>

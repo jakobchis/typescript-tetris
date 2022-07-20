@@ -1,27 +1,19 @@
 {
   "name": "typescript-tetris",
+  "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.178",
-    "lodash": "^4.17.21",
-    "typescript": "^4.6.3",
-    "vite": "^2.7.2"
+    "@types/lodash": "^4.14.182",
+    "typescript": "^4.6.4",
+    "vite": "^3.0.0"
   },
-  "description": "tetris using typescript",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jakobchis/typescript-tetris.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/jakobchis/typescript-tetris/issues"
-  },
-  "homepage": "https://github.com/jakobchis/typescript-tetris#readme"
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
 }

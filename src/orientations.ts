@@ -172,4 +172,5 @@ const ORIENTATIONS: Orientations = {
   ],
 };
 
-export { Orientations, ORIENTATIONS };
+export type { Orientations };
+export { ORIENTATIONS };

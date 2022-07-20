@@ -5,7 +5,6 @@ import {
   EXTRA_INFO_CANVAS_DIMENSIONS,
   getRandomNewPiece,
   MAIN_CANVAS_DIMENSIONS,
-  MESSAGES_CANVAS_DIMENSIONS,
   SQUARE_DIMENSION,
 } from "./utils";
 
@@ -16,18 +15,19 @@ class Game {
   messages: Message[] = [];
   mainCtx;
   extraInfoCtx;
-  messagesCtx;
+  speed = 0;
+  scores: any[] = [];
 
   constructor(
     initialPiece: Piece,
     mainCtx: CanvasRenderingContext2D,
     extraInfoCtx: CanvasRenderingContext2D,
-    messagesCtx: CanvasRenderingContext2D
+    scores: any
   ) {
     this.currentPiece = initialPiece;
     this.mainCtx = mainCtx;
     this.extraInfoCtx = extraInfoCtx;
-    this.messagesCtx = messagesCtx;
+    this.scores = scores;
   }
 
   update(direction: string) {
@@ -213,6 +213,28 @@ class Game {
     });
   }
 
+  drawText(span: HTMLElement, text: string) {
+    let oldHtml = span.innerHTML;
+    if (oldHtml === text) return;
+    span.innerHTML = text;
+  }
+
+  drawTable(span: HTMLElement, scores: any) {
+    const text = `<table>
+      <tr><th>date</th><th>score</th></tr>
+      ${scores
+        .map((score: any) => {
+          return `<tr><td>${score.date}</td><td>${score.value}</td></tr>`;
+        })
+        .join("")}
+    </table>`;
+
+    let oldHtml = span.innerHTML;
+    if (oldHtml === text) return;
+
+    span.innerHTML = text;
+  }
+
   draw() {
     this.mainCtx.fillStyle = "White";
     this.mainCtx.fillRect(
@@ -227,13 +249,6 @@ class Game {
       0,
       EXTRA_INFO_CANVAS_DIMENSIONS.width,
       EXTRA_INFO_CANVAS_DIMENSIONS.height
-    );
-    this.messagesCtx.fillStyle = "#2d2d36";
-    this.messagesCtx.fillRect(
-      0,
-      0,
-      MESSAGES_CANVAS_DIMENSIONS.width,
-      MESSAGES_CANVAS_DIMENSIONS.height
     );
 
     this.mainCtx.strokeStyle = "LightGray";
@@ -252,9 +267,21 @@ class Game {
     this.currentPiece?.draw(this.mainCtx);
     this.queuedPiece?.draw(this.extraInfoCtx);
     this.forbiddenSquares.forEach((square) => square.draw(this.mainCtx));
-    this.messages.forEach((message, index) =>
-      message.draw(this.messagesCtx, this.messages.length - index)
-    );
+
+    const messagesSpan = document.getElementById("messagesSpan") as HTMLElement;
+    const messagesString = this.messages
+      .map((message) => message.text)
+      .join("<br>");
+    this.drawText(messagesSpan, messagesString);
+
+    const gameSpeedSpan = document.getElementById(
+      "gameSpeedSpan"
+    ) as HTMLElement;
+    const gameSpeedString = `game speed: ${this.speed.toString()}`;
+    this.drawText(gameSpeedSpan, gameSpeedString);
+
+    const scoresSpan = document.getElementById("scoresSpan") as HTMLElement;
+    this.drawTable(scoresSpan, this.scores);
   }
 }
 
