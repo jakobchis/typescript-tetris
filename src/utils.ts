@@ -14,7 +14,8 @@ const getRandomNewPiece = () => {
 };
 
 const getScores = async () => {
- // TODO: implement localstorage score saving
+  // TODO: implement localstorage score saving
+  return [{ date: null, value: null }];
 };
 
 const MAIN_CANVAS_DIMENSIONS = {

@@ -219,20 +219,20 @@ class Game {
     span.innerHTML = text;
   }
 
-  drawTable(span: HTMLElement, scores: any) {
-    const text = `<table>
+  drawTable(table: HTMLElement, scores: any) {
+    const text = `
       <tr><th>date</th><th>score</th></tr>
       ${scores
         .map((score: any) => {
           return `<tr><td>${score.date}</td><td>${score.value}</td></tr>`;
         })
         .join("")}
-    </table>`;
+    `;
 
-    let oldHtml = span.innerHTML;
+    let oldHtml = table.innerHTML;
     if (oldHtml === text) return;
 
-    span.innerHTML = text;
+    table.innerHTML = text;
   }
 
   draw() {
@@ -280,8 +280,8 @@ class Game {
     const gameSpeedString = `game speed: ${this.speed.toString()}`;
     this.drawText(gameSpeedSpan, gameSpeedString);
 
-    const scoresSpan = document.getElementById("scoresSpan") as HTMLElement;
-    this.drawTable(scoresSpan, this.scores);
+    const scoresTable = document.getElementById("scoresTable") as HTMLElement;
+    this.drawTable(scoresTable, this.scores);
   }
 }
 
