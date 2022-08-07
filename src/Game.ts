@@ -1,10 +1,13 @@
 import { Message } from "./Message";
 import { Piece } from "./Piece";
 import { PieceSquare } from "./PieceSquare";
+import { Score } from "./Score";
 import {
   EXTRA_INFO_CANVAS_DIMENSIONS,
   getRandomNewPiece,
+  getScores,
   MAIN_CANVAS_DIMENSIONS,
+  publishScore,
   SQUARE_DIMENSION,
 } from "./utils";
 
@@ -16,18 +19,16 @@ class Game {
   mainCtx;
   extraInfoCtx;
   speed = 0;
-  scores: any[] = [];
+  score = new Score();
 
   constructor(
     initialPiece: Piece,
     mainCtx: CanvasRenderingContext2D,
-    extraInfoCtx: CanvasRenderingContext2D,
-    scores: any
+    extraInfoCtx: CanvasRenderingContext2D
   ) {
     this.currentPiece = initialPiece;
     this.mainCtx = mainCtx;
     this.extraInfoCtx = extraInfoCtx;
-    this.scores = scores;
   }
 
   update(direction: string) {
@@ -166,6 +167,7 @@ class Game {
 
       if (fullLine.length === MAIN_CANVAS_DIMENSIONS.width / 25) {
         this.messages.push(new Message("LINE CLEAR!"));
+        this.score.increment();
 
         fullLine.forEach((square) => {
           this.forbiddenSquares.splice(
@@ -191,6 +193,7 @@ class Game {
 
     if (gameOver) {
       this.messages.push(new Message("GAME OVER!"));
+      publishScore(this.score);
     }
 
     return gameOver;
@@ -213,28 +216,37 @@ class Game {
     });
   }
 
-  drawText(span: HTMLElement, text: string) {
-    let oldHtml = span.innerHTML;
-    if (oldHtml === text) return;
-    span.innerHTML = text;
+  drawText(span: HTMLElement, text: string[]) {
+    const textWithBreaks = text.join("<br>");
+
+    if (span.innerHTML.includes(textWithBreaks)) return;
+
+    span.innerHTML = textWithBreaks;
   }
 
-  drawTable(table: HTMLElement, scores: any) {
+  drawTable(table: HTMLElement, scores: Score[]) {
+    if (!scores) return;
+
     const text = `
-      <tr><th>date</th><th>score</th></tr>
-      ${scores
-        .map((score: any) => {
-          return `<tr><td>${score.date}</td><td>${score.value}</td></tr>`;
-        })
-        .join("")}
+      <tbody>
+        <tr>
+          <th>date</th>
+          <th>score</th>
+        </tr>
+        ${scores
+          .map((score: any) => {
+            return `<tr><td>${score.date}</td><td>${score.value}</td></tr>`;
+          })
+          .join("")}
+      </tbody>
     `;
 
-    let oldHtml = table.innerHTML;
-    if (oldHtml === text) return;
+    if (table.innerHTML.includes(text)) return;
 
     table.innerHTML = text;
   }
 
+  // TODO: draw piece preview shadows on the bottom of the screen to indicate where they'll go
   draw() {
     this.mainCtx.fillStyle = "White";
     this.mainCtx.fillRect(
@@ -272,16 +284,15 @@ class Game {
     const messagesString = this.messages
       .map((message) => message.text)
       .join("<br>");
-    this.drawText(messagesSpan, messagesString);
+    this.drawText(messagesSpan, [messagesString]);
 
-    const gameSpeedSpan = document.getElementById(
-      "gameSpeedSpan"
-    ) as HTMLElement;
+    const gameInfoSpan = document.getElementById("gameInfoSpan") as HTMLElement;
     const gameSpeedString = `game speed: ${this.speed.toString()}`;
-    this.drawText(gameSpeedSpan, gameSpeedString);
+    const gameScoreString = `game score: ${this.score.value.toString()}`;
+    this.drawText(gameInfoSpan, [gameSpeedString, gameScoreString]);
 
     const scoresTable = document.getElementById("scoresTable") as HTMLElement;
-    this.drawTable(scoresTable, this.scores);
+    this.drawTable(scoresTable, getScores());
   }
 }
 

@@ -19,16 +19,19 @@
         </div>
         <div class="flex flex-col gap-5">
           <div class="flex flex-col">
-            <span class="font-bold">messages</span>
-            <span id="gameSpeedSpan"></span>
+            <span class="font-bold pb-2">messages</span>
+            <span id="gameInfoSpan"></span>
             <span id="messagesSpan"></span>
           </div>
-          <div>
-            <span class="font-bold">scores</span>
-            <table id="scoresTable" class="table-auto"></table>
+          <div class="flex flex-col">
+            <span class="font-bold pb-2">scores</span>
+            <table
+              id="scoresTable"
+              class="table-auto border-white border-solid border-2 text-left"
+            ></table>
           </div>
-          <div>
-            <span class="font-bold">controls</span>
+          <div class="flex flex-col">
+            <span class="font-bold pb-2">controls</span>
             <ul>
               <li>
                 <strong>Left/A</strong>, <strong>Right/D</strong>, and
@@ -37,6 +40,7 @@
               <li><strong>Up/W</strong> keys to rotate 90 degrees clockwise</li>
               <li><strong>Q</strong> key to hold a piece</li>
               <li><strong>Space</strong> key to drop piece</li>
+              <li><strong>R</strong> key to restart</li>
             </ul>
           </div>
         </div>

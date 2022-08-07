@@ -1,4 +1,5 @@
 import { Game } from "./Game";
+import { startGame } from "./main";
 
 const inputHandler = (e: KeyboardEvent, game: Game) => {
   if (e.code === "ArrowDown" || e.code === "KeyS") {
@@ -13,6 +14,10 @@ const inputHandler = (e: KeyboardEvent, game: Game) => {
     game.queuePiece();
   } else if (e.code === "Space") {
     game.dropPiece();
+  } else if (e.code === "KeyR") {
+    if (window.confirm("Are you sure you want to restart?")) {
+      startGame();
+    }
   }
 };
 

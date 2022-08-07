@@ -1,5 +1,6 @@
 import { IMAGES } from "../assets/assets";
 import { SQUARE_DIMENSION } from "./utils";
+
 class PieceSquare {
   xPos;
   yPos;
@@ -13,7 +14,13 @@ class PieceSquare {
   }
 
   draw(context: CanvasRenderingContext2D) {
-    context.drawImage(this.image, this.xPos, this.yPos, SQUARE_DIMENSION, SQUARE_DIMENSION);
+    context.drawImage(
+      this.image,
+      this.xPos,
+      this.yPos,
+      SQUARE_DIMENSION,
+      SQUARE_DIMENSION
+    );
   }
 }
 

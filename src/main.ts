@@ -1,6 +1,6 @@
 import { Game } from "./Game";
 import { inputHandler } from "./inputHandler";
-import { getRandomNewPiece, getScores, SPEED_INCREASE_INTERVAL, TICK_RATE } from "./utils";
+import { getRandomNewPiece, SPEED_INCREASE_INTERVAL, TICK_RATE } from "./utils";
 
 // Look here for documentation on tetris pieces
 // https://tetris.fandom.com/wiki/SRS
@@ -11,7 +11,11 @@ let requestId: number;
 let game: Game;
 let tickRateInterval: number;
 
-addEventListener("load", async () => {
+addEventListener("load", () => {
+  startGame();
+});
+
+const startGame = () => {
   const mainCanvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
   const extraInfoCanvas = document.getElementById(
     "extraInfoCanvas"
@@ -22,7 +26,7 @@ addEventListener("load", async () => {
 
   document.onkeydown = (e) => inputHandler(e, game);
 
-  game = new Game(getRandomNewPiece(), mainCtx, extraInfoCtx, await getScores());
+  game = new Game(getRandomNewPiece(), mainCtx, extraInfoCtx);
 
   tickRateInterval = setInterval(() => {
     game.speed = (TICK_RATE.default - tickRate) / 100;
@@ -30,7 +34,7 @@ addEventListener("load", async () => {
   }, SPEED_INCREASE_INTERVAL);
 
   requestAnimationFrame(tick);
-});
+};
 
 const tick = (timestamp: number) => {
   if (!previousTimestamp) {
@@ -59,3 +63,5 @@ const tick = (timestamp: number) => {
 
   requestId = requestAnimationFrame(tick);
 };
+
+export { startGame };

@@ -1,8 +1,8 @@
 import { Piece } from "./Piece";
+import { Score } from "./Score";
 
 const COLOURS = ["red", "blue", "green", "pink", "purple"] as const;
 
-// TODO: refactor out functions and consts into two files
 const getRandomColor = () => {
   return COLOURS[Math.floor(Math.random() * COLOURS.length)];
 };
@@ -13,9 +13,25 @@ const getRandomNewPiece = () => {
   return new Piece(randomType, getRandomColor(), false);
 };
 
-const getScores = async () => {
-  // TODO: implement localstorage score saving
-  return [{ date: null, value: null }];
+const isScores = (scores: any): scores is Score[] => {
+  return scores.map((score: any) => {
+    return score.date && score.value;
+  });
+};
+
+const getScores = () => {
+  const rawScores = localStorage.getItem("scores");
+  if (!rawScores) return [];
+
+  const scores = JSON.parse(rawScores);
+  if (!isScores(scores)) return [];
+
+  return scores;
+};
+
+const publishScore = (newScore: Score) => {
+  const newScores = JSON.stringify([...getScores(), newScore]);
+  localStorage.setItem("scores", newScores);
 };
 
 const MAIN_CANVAS_DIMENSIONS = {
@@ -50,6 +66,7 @@ const PIECE_TYPES = [
 export {
   getRandomColor,
   getRandomNewPiece,
+  publishScore,
   getScores,
   PIECE_TYPES,
   MAIN_CANVAS_DIMENSIONS,
