@@ -10,6 +10,7 @@ class Piece {
   orientationIndex;
   orientations;
   squares;
+  isQueuedPiece;
 
   constructor(
     type: typeof PIECE_TYPES[number],
@@ -18,13 +19,16 @@ class Piece {
   ) {
     this.type = type;
     this.colour = colour;
+    this.orientationIndex = 0;
+    this.isQueuedPiece = isQueuedPiece;
     this.orientations = cloneDeep(ORIENTATIONS[type]).map((orientation) =>
       orientation.map((pieceSquare) => {
-        const xPos = !isQueuedPiece ? pieceSquare.xPos + 100 : pieceSquare.xPos;
+        const xPos = !this.isQueuedPiece
+          ? pieceSquare.xPos + 100
+          : pieceSquare.xPos;
         return new PieceSquare(xPos, pieceSquare.yPos, this.colour);
       })
     );
-    this.orientationIndex = 0;
     this.squares = this.orientations[this.orientationIndex];
   }
 

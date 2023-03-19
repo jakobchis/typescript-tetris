@@ -2,6 +2,7 @@ import { Message } from "./Message";
 import { Piece } from "./Piece";
 import { PieceSquare } from "./PieceSquare";
 import { Score } from "./Score";
+import { ShadowPiece } from "./ShadowPiece";
 import {
   EXTRA_INFO_CANVAS_DIMENSIONS,
   getRandomNewPiece,
@@ -14,6 +15,7 @@ import {
 class Game {
   currentPiece;
   queuedPiece: Piece | undefined;
+  shadowPiece;
   forbiddenSquares: PieceSquare[] = [];
   messages: Message[] = [];
   mainCtx;
@@ -27,17 +29,16 @@ class Game {
     extraInfoCtx: CanvasRenderingContext2D
   ) {
     this.currentPiece = initialPiece;
+    this.shadowPiece = new ShadowPiece(this.currentPiece);
     this.mainCtx = mainCtx;
     this.extraInfoCtx = extraInfoCtx;
   }
 
-  update(direction: string) {
+  update(direction: "up" | "down" | "left" | "right") {
     this.messages.forEach((message) => (message.age += 1));
     this.messages = this.messages.filter((message) => message.age <= 20);
-
-    // TODO: movement stuff should actually be on Piece class
-    // game.handleMovemenet(direction) => currentPiece.move(direction)
-    // game.update() should just be for updating game state each tick, doing messages, etc
+    // TODO: implement update method on Piece class as well for handling movement
+    this.shadowPiece.update(direction, this.forbiddenSquares);
     if (direction === "up") {
       const nextOrientationIndex = this.currentPiece.getNextOrientationIndex();
       const newSquares = this.currentPiece.orientations[nextOrientationIndex];
@@ -66,8 +67,8 @@ class Game {
         });
         this.forbiddenSquares.push(...squares);
 
-        const newPiece = getRandomNewPiece();
-        this.currentPiece = newPiece;
+        this.currentPiece = getRandomNewPiece();
+        this.shadowPiece = new ShadowPiece(this.currentPiece);
 
         return;
       }
@@ -246,7 +247,6 @@ class Game {
     table.innerHTML = text;
   }
 
-  // TODO: draw piece preview shadows on the bottom of the screen to indicate where they'll go
   draw() {
     this.mainCtx.fillStyle = "White";
     this.mainCtx.fillRect(
@@ -276,7 +276,8 @@ class Game {
       }
     }
 
-    this.currentPiece?.draw(this.mainCtx);
+    this.currentPiece.draw(this.mainCtx);
+    this.shadowPiece.draw(this.mainCtx);
     this.queuedPiece?.draw(this.extraInfoCtx);
     this.forbiddenSquares.forEach((square) => square.draw(this.mainCtx));
 
