@@ -16,7 +16,13 @@ class ShadowPiece extends Piece {
     });
   }
 
-  checkOutOfBounds(newSquares: PieceSquare[], forbiddenSquares: PieceSquare[]) {
+  checkOffScreen(newSquares: PieceSquare[]) {
+    return newSquares.find((square) => {
+      return square.xPos < 0 || square.xPos > 275;
+    });
+  }
+
+  checkCollision(newSquares: PieceSquare[], forbiddenSquares: PieceSquare[]) {
     return newSquares.find((square) => {
       return (
         square.yPos > 525 ||
@@ -35,10 +41,11 @@ class ShadowPiece extends Piece {
     newSquares: PieceSquare[],
     forbiddenSquares: PieceSquare[]
   ) {
-    while (!this.checkOutOfBounds(newSquares, forbiddenSquares)) {
+    // Drop the shadow piece to the bottom of the grid to display
+    while (!this.checkCollision(newSquares, forbiddenSquares)) {
       newSquares.forEach((square) => (square.yPos += SQUARE_DIMENSION));
     }
-    while (this.checkOutOfBounds(newSquares, forbiddenSquares)) {
+    while (this.checkCollision(newSquares, forbiddenSquares)) {
       newSquares.forEach((square) => (square.yPos -= SQUARE_DIMENSION));
     }
 
@@ -69,6 +76,10 @@ class ShadowPiece extends Piece {
         );
       });
 
+      if (this.checkOffScreen(newSquares)) {
+        return;
+      }
+
       this.moveToNextPosition(newSquares, forbiddenSquares);
     } else if (direction === "right") {
       let newSquares = this.squares.map((square) => {
@@ -78,6 +89,10 @@ class ShadowPiece extends Piece {
           this.colour
         );
       });
+
+      if (this.checkOffScreen(newSquares)) {
+        return;
+      }
 
       this.moveToNextPosition(newSquares, forbiddenSquares);
     }
