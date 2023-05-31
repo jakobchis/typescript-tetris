@@ -34,85 +34,21 @@ class Game {
     this.extraInfoCtx = extraInfoCtx;
   }
 
+  handleNewPiece(squares: PieceSquare[]) {
+    this.forbiddenSquares.push(...squares);
+    this.currentPiece = getRandomNewPiece();
+    this.shadowPiece = new ShadowPiece(this.currentPiece);
+  }
+
   update(direction: "up" | "down" | "left" | "right") {
     this.messages.forEach((message) => (message.age += 1));
     this.messages = this.messages.filter((message) => message.age <= 20);
-    // TODO: implement update method on Piece class as well for handling movement
     this.shadowPiece.update(direction, this.forbiddenSquares);
-    if (direction === "up") {
-      const nextOrientationIndex = this.currentPiece.getNextOrientationIndex();
-      const newSquares = this.currentPiece.orientations[nextOrientationIndex];
-
-      if (this.checkOutOfBounds(newSquares)) {
-        return;
-      }
-
-      this.currentPiece.orientationIndex = nextOrientationIndex;
-      this.currentPiece.squares = newSquares;
-    }
-
-    if (direction === "down") {
-      const newSquares = this.currentPiece.squares.map((square: any) => ({
-        xPos: square.xPos,
-        yPos: square.yPos + SQUARE_DIMENSION,
-      }));
-
-      if (this.checkOutOfBounds(newSquares)) {
-        const squares = this.currentPiece.squares.map((squarePosition) => {
-          return new PieceSquare(
-            squarePosition.xPos,
-            squarePosition.yPos,
-            this.currentPiece.colour
-          );
-        });
-        this.forbiddenSquares.push(...squares);
-
-        this.currentPiece = getRandomNewPiece();
-        this.shadowPiece = new ShadowPiece(this.currentPiece);
-
-        return;
-      }
-
-      this.currentPiece.orientations.forEach((position: any) => {
-        position.forEach(
-          (squarePosition: any) => (squarePosition.yPos += SQUARE_DIMENSION)
-        );
-      });
-    }
-
-    if (direction === "left") {
-      const newSquares = this.currentPiece.squares.map((square: any) => ({
-        ...square,
-        xPos: square.xPos - SQUARE_DIMENSION,
-      }));
-
-      if (this.checkOutOfBounds(newSquares)) {
-        return;
-      }
-
-      this.currentPiece.orientations.forEach((position: any) => {
-        position.forEach(
-          (squarePosition: any) => (squarePosition.xPos -= SQUARE_DIMENSION)
-        );
-      });
-    }
-
-    if (direction === "right") {
-      const newSquares = this.currentPiece.squares.map((square: any) => ({
-        ...square,
-        xPos: square.xPos + SQUARE_DIMENSION,
-      }));
-
-      if (this.checkOutOfBounds(newSquares)) {
-        return;
-      }
-
-      this.currentPiece.orientations.forEach((position: any) => {
-        position.forEach(
-          (squarePosition: any) => (squarePosition.xPos += SQUARE_DIMENSION)
-        );
-      });
-    }
+    this.currentPiece.update(
+      direction,
+      this.forbiddenSquares,
+      this.handleNewPiece.bind(this)
+    );
   }
 
   queuePiece() {
@@ -138,6 +74,8 @@ class Game {
     }
   }
 
+  // TODO: this can be on the Piece class too
+  // Potentially have three classes: base Piece, GamePiece, and ShadowPiece
   dropPiece() {
     let dropping = true;
 

@@ -22,21 +22,7 @@ class ShadowPiece extends Piece {
     });
   }
 
-  checkCollision(newSquares: PieceSquare[], forbiddenSquares: PieceSquare[]) {
-    return newSquares.find((square) => {
-      return (
-        square.yPos > 525 ||
-        square.yPos < 0 ||
-        forbiddenSquares.find((forbiddenSquare) => {
-          return (
-            forbiddenSquare.yPos === square.yPos &&
-            forbiddenSquare.xPos === square.xPos
-          );
-        })
-      );
-    });
-  }
-
+  // TODO: this is very similar to the dropPiece function, can they be shared?
   moveToNextPosition(
     newSquares: PieceSquare[],
     forbiddenSquares: PieceSquare[]

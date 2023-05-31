@@ -1,4 +1,4 @@
-import { PIECE_TYPES } from "./utils";
+import { PIECE_TYPES, SQUARE_DIMENSION } from "./utils";
 import { cloneDeep } from "lodash";
 import { PieceSquare } from "./PieceSquare";
 import { IMAGES } from "../assets/assets";
@@ -13,7 +13,7 @@ class Piece {
   isQueuedPiece;
 
   constructor(
-    type: typeof PIECE_TYPES[number],
+    type: (typeof PIECE_TYPES)[number],
     colour: keyof typeof IMAGES,
     isQueuedPiece: boolean
   ) {
@@ -30,6 +30,98 @@ class Piece {
       })
     );
     this.squares = this.orientations[this.orientationIndex];
+  }
+
+  checkCollision(newSquares: PieceSquare[], forbiddenSquares: PieceSquare[]) {
+    return newSquares.find((square) => {
+      return (
+        square.yPos > 525 ||
+        square.yPos < 0 ||
+        square.xPos < 0 ||
+        square.xPos > 275 ||
+        forbiddenSquares.find((forbiddenSquare) => {
+          return (
+            forbiddenSquare.yPos === square.yPos &&
+            forbiddenSquare.xPos === square.xPos
+          );
+        })
+      );
+    });
+  }
+
+  update(
+    direction: "up" | "down" | "left" | "right",
+    forbiddenSquares: PieceSquare[],
+    handleNewPiece: (squares: PieceSquare[]) => void
+  ) {
+    if (direction === "up") {
+      const nextOrientationIndex = this.getNextOrientationIndex();
+      const newSquares = this.orientations[nextOrientationIndex];
+
+      if (this.checkCollision(newSquares, forbiddenSquares)) {
+        return;
+      }
+
+      this.orientationIndex = nextOrientationIndex;
+      this.squares = newSquares;
+    } else if (direction === "down") {
+      const newSquares = this.squares.map((square: any) => {
+        return new PieceSquare(
+          square.xPos,
+          square.yPos + SQUARE_DIMENSION,
+          this.colour
+        );
+      });
+
+      if (this.checkCollision(newSquares, forbiddenSquares)) {
+        const squares = this.squares.map((squarePosition) => {
+          return new PieceSquare(
+            squarePosition.xPos,
+            squarePosition.yPos,
+            this.colour
+          );
+        });
+
+        handleNewPiece(squares);
+        return;
+      }
+
+      this.orientations.forEach((position: any) => {
+        position.forEach(
+          (squarePosition: any) => (squarePosition.yPos += SQUARE_DIMENSION)
+        );
+      });
+    } else if (direction === "left") {
+      const newSquares = this.squares.map((square: any) => ({
+        ...square,
+        xPos: square.xPos - SQUARE_DIMENSION,
+      }));
+
+      if (this.checkCollision(newSquares, forbiddenSquares)) {
+        return;
+      }
+
+      this.orientations.forEach((position: any) => {
+        position.forEach(
+          (squarePosition: any) => (squarePosition.xPos -= SQUARE_DIMENSION)
+        );
+      });
+    } else if (direction === "right") {
+      const newSquares = this.squares.map((square: any) => ({
+        ...square,
+        xPos: square.xPos + SQUARE_DIMENSION,
+      }));
+
+      if (this.checkCollision(newSquares, forbiddenSquares)) {
+        return;
+      }
+
+      this.orientations.forEach((position: any) => {
+        position.forEach(
+          (squarePosition: any) => (squarePosition.xPos += SQUARE_DIMENSION)
+        );
+      });
+    }
   }
 
   getNextOrientationIndex() {
