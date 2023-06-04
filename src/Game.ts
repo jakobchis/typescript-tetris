@@ -1,8 +1,7 @@
-import { Message } from "./Message";
 import { Piece } from "./Piece";
+import { Message } from "./Message";
 import { PieceSquare } from "./PieceSquare";
 import { Score } from "./Score";
-import { ShadowPiece } from "./ShadowPiece";
 import {
   EXTRA_INFO_CANVAS_DIMENSIONS,
   getRandomNewPiece,
@@ -15,7 +14,6 @@ import {
 class Game {
   currentPiece;
   queuedPiece: Piece | undefined;
-  shadowPiece;
   forbiddenSquares: PieceSquare[] = [];
   messages: Message[] = [];
   mainCtx;
@@ -29,7 +27,6 @@ class Game {
     extraInfoCtx: CanvasRenderingContext2D
   ) {
     this.currentPiece = initialPiece;
-    this.shadowPiece = new ShadowPiece(this.currentPiece);
     this.mainCtx = mainCtx;
     this.extraInfoCtx = extraInfoCtx;
   }
@@ -37,18 +34,16 @@ class Game {
   handleNewPiece(squares: PieceSquare[]) {
     this.forbiddenSquares.push(...squares);
     this.currentPiece = getRandomNewPiece();
-    this.shadowPiece = new ShadowPiece(this.currentPiece);
   }
 
   update(direction: "up" | "down" | "left" | "right") {
     this.messages.forEach((message) => (message.age += 1));
     this.messages = this.messages.filter((message) => message.age <= 20);
-    this.shadowPiece.update(direction, this.forbiddenSquares);
     this.currentPiece.update(
       direction,
       this.forbiddenSquares,
       this.handleNewPiece.bind(this)
-    );
+      );
   }
 
   queuePiece() {
@@ -71,30 +66,6 @@ class Game {
         true
       );
       this.currentPiece = getRandomNewPiece();
-    }
-  }
-
-  // TODO: this can be on the Piece class too
-  // Potentially have three classes: base Piece, GamePiece, and ShadowPiece
-  dropPiece() {
-    let dropping = true;
-
-    while (dropping) {
-      const newSquares = this.currentPiece.squares.map((square: any) => ({
-        ...square,
-        yPos: square.yPos + SQUARE_DIMENSION,
-      }));
-
-      if (this.checkOutOfBounds(newSquares)) {
-        dropping = false;
-        return;
-      }
-
-      this.currentPiece.orientations.forEach((position: any) => {
-        position.forEach(
-          (squarePosition: any) => (squarePosition.yPos += SQUARE_DIMENSION)
-        );
-      });
     }
   }
 
@@ -136,6 +107,10 @@ class Game {
     }
 
     return gameOver;
+  }
+
+  dropPiece() {
+    this.currentPiece.dropPiece(this.forbiddenSquares);
   }
 
   checkOutOfBounds(newSquares: { xPos: number; yPos: number }[]) {
@@ -215,7 +190,6 @@ class Game {
     }
 
     this.currentPiece.draw(this.mainCtx);
-    this.shadowPiece.draw(this.mainCtx);
     this.queuedPiece?.draw(this.extraInfoCtx);
     this.forbiddenSquares.forEach((square) => square.draw(this.mainCtx));
 

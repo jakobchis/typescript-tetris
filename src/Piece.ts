@@ -10,6 +10,7 @@ class Piece {
   orientationIndex;
   orientations;
   squares;
+  shadowSquares;
   isQueuedPiece;
 
   constructor(
@@ -30,6 +31,9 @@ class Piece {
       })
     );
     this.squares = this.orientations[this.orientationIndex];
+    this.shadowSquares = this.squares.map((square: PieceSquare) => {
+      return new PieceSquare(square.xPos, square.yPos, "shadow");
+    });
   }
 
   checkCollision(newSquares: PieceSquare[], forbiddenSquares: PieceSquare[]) {
@@ -47,6 +51,44 @@ class Piece {
         })
       );
     });
+  }
+
+  dropPiece(forbiddenSquares: PieceSquare[]) {
+    let dropping = true;
+    let newSquares = cloneDeep(this.squares);
+
+    while (dropping) {
+      newSquares.forEach((square) => (square.yPos += SQUARE_DIMENSION));
+
+      if (this.checkCollision(newSquares, forbiddenSquares)) {
+        dropping = false;
+        return;
+      }
+
+      this.orientations.forEach((position: any) => {
+        position.forEach(
+          (squarePosition: any) => (squarePosition.yPos += SQUARE_DIMENSION)
+        );
+      });
+    }
+  }
+
+  getShadowSquares(forbiddenSquares: PieceSquare[]) {
+    let dropping = true;
+    let newSquares = cloneDeep(this.squares);
+
+    while (dropping) {
+      newSquares.forEach((square) => (square.yPos += SQUARE_DIMENSION));
+
+      if (this.checkCollision(newSquares, forbiddenSquares)) {
+        dropping = false;
+        return;
+      }
+
+      this.shadowSquares = newSquares.map((square) => {
+        return new PieceSquare(square.xPos, square.yPos, "shadow");
+      });
+    }
   }
 
   update(
@@ -122,6 +164,8 @@ class Piece {
         );
       });
     }
+
+    this.getShadowSquares(forbiddenSquares);
   }
 
   getNextOrientationIndex() {
@@ -134,6 +178,7 @@ class Piece {
 
   draw(context: CanvasRenderingContext2D) {
     this.squares.forEach((square: PieceSquare) => square.draw(context));
+    this.shadowSquares.forEach((square: PieceSquare) => square.draw(context));
   }
 }
 
