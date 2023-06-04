@@ -1,9 +1,9 @@
 class Score {
-  date: Date;
+  date: string;
   value: number;
 
   constructor() {
-    this.date = new Date();
+    this.date = new Date().toLocaleDateString('en-ca');
     this.value = 0;
   }
 

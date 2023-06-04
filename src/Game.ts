@@ -39,8 +39,9 @@ class Game {
   }
 
   update(direction: "up" | "down" | "left" | "right") {
-    this.messages.forEach((message) => (message.age += 1));
-    this.messages = this.messages.filter((message) => message.age <= 20);
+    // TODO: figure out a better way to handle and display messages, if needed
+    // this.messages.forEach((message) => (message.age += 1));
+    // this.messages = this.messages.filter((message) => message.age <= 20);
     this.currentPiece.update(
       direction,
       this.forbiddenSquares,
@@ -75,7 +76,6 @@ class Game {
       );
 
       if (fullLine.length === MAIN_CANVAS_DIMENSIONS.width / 25) {
-        this.messages.push(new Message("LINE CLEAR!"));
         this.score.increment();
 
         fullLine.forEach((square) => {
@@ -101,7 +101,6 @@ class Game {
     });
 
     if (gameOver) {
-      this.messages.push(new Message("GAME OVER!"));
       publishScore(this.score);
     }
 
