@@ -1,6 +1,12 @@
 import { Game } from "./Game";
+import { GamePiece } from "./GamePiece";
 import { inputHandler } from "./inputHandler";
-import { getRandomNewPiece, SPEED_INCREASE_INTERVAL, TICK_RATE } from "./utils";
+import {
+  getRandomColor,
+  getRandomType,
+  SPEED_INCREASE_INTERVAL,
+  TICK_RATE,
+} from "./utils";
 
 // Look here for documentation on tetris pieces
 // https://tetris.fandom.com/wiki/SRS
@@ -26,7 +32,11 @@ const startGame = () => {
 
   document.onkeydown = (e) => inputHandler(e, game);
 
-  game = new Game(getRandomNewPiece(), mainCtx, extraInfoCtx);
+  game = new Game(
+    new GamePiece(getRandomType(), getRandomColor()),
+    mainCtx,
+    extraInfoCtx
+  );
 
   tickRateInterval = setInterval(() => {
     game.speed = (TICK_RATE.default - tickRate) / 100;

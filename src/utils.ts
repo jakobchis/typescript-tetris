@@ -1,4 +1,3 @@
-import { Piece } from "./Piece";
 import { Score } from "./Score";
 
 const COLOURS = ["red", "blue", "green", "pink", "purple"] as const;
@@ -7,10 +6,10 @@ const getRandomColor = () => {
   return COLOURS[Math.floor(Math.random() * COLOURS.length)];
 };
 
-const getRandomNewPiece = () => {
+const getRandomType = () => {
   const randomType =
     PIECE_TYPES[Math.floor(Math.random() * PIECE_TYPES.length)];
-  return new Piece(randomType, getRandomColor(), false);
+  return randomType;
 };
 
 const isScores = (scores: any): scores is Score[] => {
@@ -65,7 +64,7 @@ const PIECE_TYPES = [
 
 export {
   getRandomColor,
-  getRandomNewPiece,
+  getRandomType,
   publishScore,
   getScores,
   PIECE_TYPES,

@@ -1,19 +1,21 @@
-import { Piece } from "./Piece";
 import { Message } from "./Message";
 import { PieceSquare } from "./PieceSquare";
 import { Score } from "./Score";
 import {
   EXTRA_INFO_CANVAS_DIMENSIONS,
-  getRandomNewPiece,
+  getRandomColor,
+  getRandomType,
   getScores,
   MAIN_CANVAS_DIMENSIONS,
   publishScore,
   SQUARE_DIMENSION,
 } from "./utils";
+import { QueuedPiece } from "./QueuedPiece";
+import { GamePiece } from "./GamePiece";
 
 class Game {
-  currentPiece;
-  queuedPiece: Piece | undefined;
+  currentPiece: GamePiece;
+  queuedPiece: QueuedPiece | undefined;
   forbiddenSquares: PieceSquare[] = [];
   messages: Message[] = [];
   mainCtx;
@@ -22,7 +24,7 @@ class Game {
   score = new Score();
 
   constructor(
-    initialPiece: Piece,
+    initialPiece: GamePiece,
     mainCtx: CanvasRenderingContext2D,
     extraInfoCtx: CanvasRenderingContext2D
   ) {
@@ -33,7 +35,7 @@ class Game {
 
   handleNewPiece(squares: PieceSquare[]) {
     this.forbiddenSquares.push(...squares);
-    this.currentPiece = getRandomNewPiece();
+    this.currentPiece = new GamePiece(getRandomType(), getRandomColor());
   }
 
   update(direction: "up" | "down" | "left" | "right") {
@@ -43,29 +45,26 @@ class Game {
       direction,
       this.forbiddenSquares,
       this.handleNewPiece.bind(this)
-      );
+    );
   }
 
   queuePiece() {
     if (this.queuedPiece) {
-      const newPiece = new Piece(
+      const newPiece = new GamePiece(
         this.queuedPiece.type,
-        this.queuedPiece.colour,
-        false
+        this.queuedPiece.colour
       );
-      this.queuedPiece = new Piece(
+      this.queuedPiece = new QueuedPiece(
         this.currentPiece.type,
-        this.currentPiece.colour,
-        true
+        this.currentPiece.colour
       );
       this.currentPiece = newPiece;
     } else {
-      this.queuedPiece = new Piece(
+      this.queuedPiece = new QueuedPiece(
         this.currentPiece.type,
-        this.currentPiece.colour,
-        true
+        this.currentPiece.colour
       );
-      this.currentPiece = getRandomNewPiece();
+      this.currentPiece = new GamePiece(getRandomType(), getRandomColor());
     }
   }
 
