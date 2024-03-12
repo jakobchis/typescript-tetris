@@ -1,4 +1,4 @@
-<h2>Typescript Tetris</h2>
+## Typescript Tetris
 
 Tetris implementation using Typescript and Canvas API
 
